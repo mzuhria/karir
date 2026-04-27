@@ -1,0 +1,46 @@
+<?php
+session_start();
+include "koneksi.php";
+
+// 🔒 Ambil input
+$username = mysqli_real_escape_string($conn, $_POST['username']);
+$password = $_POST['password'];
+
+// 🔍 Ambil data user
+$query = mysqli_query($conn, "SELECT * FROM siswa WHERE username='$username'");
+$data  = mysqli_fetch_assoc($query);
+
+if ($data) {
+
+    // 🔐 cek password
+    if (password_verify($password, $data['password'])) {
+
+        // 🔥 CEK STATUS (POSISI BENAR)
+        if (strtolower($data['status']) != 'aktif') {
+            header("Location: login_siswa.php?error=belum_aktif");
+            exit;
+        }
+
+        // ✅ session login
+        $_SESSION['login']     = true;
+        $_SESSION['role']      = 'siswa';
+        $_SESSION['id_siswa']  = $data['id_siswa'];
+        $_SESSION['nama']      = $data['nama'];
+        $_SESSION['kelas']     = $data['kelas'];
+        $_SESSION['jurusan']   = $data['jurusan'];
+        $_SESSION['subkelas']  = $data['subkelas'];
+        $_SESSION['email']     = $data['email'];
+        $_SESSION['id_admin']  = $data['id_admin'];
+
+        header("Location: Dashboard_Siswa.php");
+        exit;
+
+    } else {
+        header("Location: login_siswa.php?error=password");
+        exit;
+    }
+
+} else {
+    header("Location: login_siswa.php?error=username");
+    exit;
+}

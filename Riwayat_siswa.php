@@ -136,7 +136,7 @@ $query_hasil = mysqli_query($conn, "
 
     <!-- 🔥 SIDEBAR -->
     <div class="sidebar">
-        <a href="Dashboard_siswa.php"><i class="bi bi-house"></i> Beranda</a>
+        <a href="Dashboard_Siswa.php"><i class="bi bi-house"></i> Beranda</a>
         <a href="Data_Diri_Siswa.php"><i class="bi bi-person"></i> Data Diri</a>
         <a href="Kuisioner.php"><i class="bi bi-clipboard"></i> Kuisioner</a>
         <a href="Riwayat_siswa.php" class="fw-bold text-primary"><i class="bi bi-clock-history"></i> Riwayat</a>

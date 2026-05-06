@@ -101,6 +101,63 @@ $data = mysqli_fetch_assoc($query);
         .dropdown-item i {
             margin-right: 8px;
         }
+
+        .logo-mobile {
+            height: 60px;
+        }
+
+        .title-mobile {
+            font-size: 1.2rem;
+            line-height: 1.2;
+        }
+
+        .slogan-mobile {
+            font-size: 0.8rem;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+
+            .navbar .container {
+                align-items: flex-start;
+            }
+
+            .brand-mobile {
+                width: 80%;
+            }
+
+            .logo-mobile {
+                height: 45px;
+            }
+
+            .title-mobile {
+                font-size: 15px;
+            }
+
+            .slogan-mobile {
+                font-size: 10px;
+                display: block;
+            }
+
+            .navbar-toggler {
+                margin-top: 5px;
+            }
+
+            .navbar-collapse {
+                margin-top: 15px;
+                background: #212529;
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            .navbar-nav {
+                gap: 0 !important;
+            }
+
+            .nav-link {
+                padding: 10px 0;
+            }
+        }
     </style>
 </head>
 
@@ -111,12 +168,12 @@ $data = mysqli_fetch_assoc($query);
         <div class="container">
 
             <!-- LOGO / BRAND (KIRI) -->
-            <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="asset/logosekolah.png" height="60" class="me-2">
+            <a class="navbar-brand d-flex align-items-center brand-mobile" href="#">
+                <img src="asset/logosekolah.png" class="logo-mobile me-2">
 
                 <div>
-                    <div class="fw-bold">SMK Dharma Bahari Surabaya</div>
-                    <small class="text-light opacity-75">
+                    <div class="fw-bold title-mobile">SMK Dharma Bahari Surabaya</div>
+                    <small class="text-light opacity-75 slogan-mobile">
                         "Karakter Kuat, Prestasi Hebat, Masa Depan Siap"
                     </small>
                 </div>
@@ -129,7 +186,7 @@ $data = mysqli_fetch_assoc($query);
 
             <!-- MENU (KANAN) -->
             <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-                <ul class="navbar-nav align-items-center gap-3">
+                <ul class="navbar-nav align-items-lg-center ms-auto gap-lg-3">
 
                     <li class="nav-item">
                         <a class="nav-link active" href="Beranda.php">Beranda</a>

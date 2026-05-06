@@ -7,6 +7,7 @@ $no_hp = $_SESSION['no_hp_guru'] ?? null;
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Siswa</title>
 
     <!-- Bootstrap -->

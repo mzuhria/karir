@@ -52,7 +52,7 @@ $kelas = $_GET['kelas'] ?? '';
                         <!-- KELAS -->
                         <div class="mb-2">
                             <label>Kelas</label>
-                            <select name="kelas" class="form-control" required>
+                            <select name="kelas" class="form-control" onchange="window.location='?kelas='+this.value" required>
                                 <option value="">-- Pilih Kelas --</option>
                                 <option value="X" <?= $kelas == 'X' ? 'selected' : '' ?>>X</option>
                                 <option value="XI" <?= $kelas == 'XI' ? 'selected' : '' ?>>XI</option>

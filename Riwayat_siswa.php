@@ -96,7 +96,7 @@ $query_hasil = mysqli_query($conn, "
         <div class="container">
 
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="img/logosekolah.png" height="50" class="me-2">
+                <img src="asset/logosekolah.png" height="50" class="me-2">
                 <div>
                     <div class="fw-bold">SMK Dharma Bahari Surabaya</div>
                     <small>"Karakter Kuat, Prestasi Hebat, Masa Depan Siap"</small>

@@ -161,7 +161,7 @@ $query_hasil = mysqli_query($conn, "
             </a>
 
             <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav align-items-lg-center ms-auto gap-lg-3">
+                <ul class="navbar-nav gap-3">
                     <!-- DROPDOWN -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white"

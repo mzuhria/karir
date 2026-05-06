@@ -36,16 +36,17 @@ $data = mysqli_fetch_assoc($query);
             background: #f5f6fa;
         }
 
-        /* SIDEBAR */
+        /* SIDEBAR DESKTOP */
         .sidebar {
             width: 220px;
             height: 100vh;
             position: fixed;
-            top: 70px;
+            top: 76px;
             left: 0;
             background: white;
             padding-top: 20px;
             border-right: 1px solid #eee;
+            z-index: 100;
         }
 
         .sidebar a {
@@ -53,6 +54,7 @@ $data = mysqli_fetch_assoc($query);
             padding: 12px 20px;
             color: #555;
             text-decoration: none;
+            transition: 0.3s;
         }
 
         .sidebar a:hover {
@@ -76,6 +78,7 @@ $data = mysqli_fetch_assoc($query);
             background: #f1f3f6 !important;
         }
 
+        /* NAVBAR */
         .logo-mobile {
             height: 60px;
         }
@@ -92,12 +95,20 @@ $data = mysqli_fetch_assoc($query);
         /* MOBILE */
         @media (max-width: 768px) {
 
-            .navbar .container {
-                align-items: flex-start;
+            /* SIDEBAR HILANG */
+            .sidebar {
+                display: none;
+            }
+
+            /* CONTENT FULL */
+            .content {
+                margin-left: 0;
+                padding: 15px;
+                margin-top: 85px;
             }
 
             .brand-mobile {
-                width: 80%;
+                width: 75%;
             }
 
             .logo-mobile {
@@ -105,31 +116,15 @@ $data = mysqli_fetch_assoc($query);
             }
 
             .title-mobile {
-                font-size: 15px;
+                font-size: 14px;
             }
 
             .slogan-mobile {
-                font-size: 10px;
-                display: block;
+                font-size: 9px;
             }
 
-            .navbar-toggler {
-                margin-top: 5px;
-            }
-
-            .navbar-collapse {
-                margin-top: 15px;
-                background: #212529;
-                padding: 10px;
-                border-radius: 10px;
-            }
-
-            .navbar-nav {
-                gap: 0 !important;
-            }
-
-            .nav-link {
-                padding: 10px 0;
+            .card-form {
+                padding: 18px;
             }
         }
     </style>
@@ -139,7 +134,7 @@ $data = mysqli_fetch_assoc($query);
 <body>
 
     <!-- 🔥 NAVBAR (PUNYA KAMU) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow py-2">
         <div class="container">
 
             <a class="navbar-brand d-flex align-items-center brand-mobile" href="#">
@@ -150,8 +145,16 @@ $data = mysqli_fetch_assoc($query);
                 </div>
             </a>
 
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav align-items-lg-center ms-auto gap-lg-3">
+            <button class="btn btn-outline-light d-lg-none"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#mobileSidebar">
+
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div class="d-none d-lg-block">
+                 <ul class="navbar-nav">
                     <!-- DROPDOWN -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white"
@@ -182,7 +185,7 @@ $data = mysqli_fetch_assoc($query);
     </nav>
 
     <!-- 🔥 SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar d-none d-lg-block">
         <a href="Dashboard_Siswa.php"><i class="bi bi-house"></i> Beranda</a>
         <a href="Data_Diri_Siswa.php" class="fw-bold text-primary"><i class="bi bi-person"></i> Data Diri</a>
         <a href="Kuisioner.php"><i class="bi bi-clipboard"></i> Kuisioner</a>

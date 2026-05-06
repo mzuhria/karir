@@ -80,10 +80,20 @@ $query_hasil = mysqli_query($conn, "
         .card-form {
             border-radius: 15px;
             padding: 25px;
+            overflow-x: auto;
         }
 
         input {
             background: #f1f3f6 !important;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 600px;
         }
 
         .dropdown-menu {
@@ -110,12 +120,18 @@ $query_hasil = mysqli_query($conn, "
         /* MOBILE */
         @media (max-width: 768px) {
 
-            .navbar .container {
-                align-items: flex-start;
+            .sidebar {
+                display: none;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 15px;
+                margin-top: 85px;
             }
 
             .brand-mobile {
-                width: 80%;
+                width: 75%;
             }
 
             .logo-mobile {
@@ -123,31 +139,25 @@ $query_hasil = mysqli_query($conn, "
             }
 
             .title-mobile {
-                font-size: 15px;
+                font-size: 14px;
             }
 
             .slogan-mobile {
-                font-size: 10px;
-                display: block;
+                font-size: 9px;
             }
 
-            .navbar-toggler {
-                margin-top: 5px;
+            .card-form {
+                padding: 18px;
+                overflow-x: auto;
             }
 
-            .navbar-collapse {
-                margin-top: 15px;
-                background: #212529;
-                padding: 10px;
-                border-radius: 10px;
+            .table-responsive {
+                width: 100%;
+                overflow-x: auto;
             }
 
-            .navbar-nav {
-                gap: 0 !important;
-            }
-
-            .nav-link {
-                padding: 10px 0;
+            table {
+                min-width: 600px;
             }
         }
     </style>

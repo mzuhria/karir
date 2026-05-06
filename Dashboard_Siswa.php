@@ -189,7 +189,7 @@ $data = mysqli_fetch_assoc($query);
                 <ul class="navbar-nav align-items-lg-center ms-auto gap-lg-3">
 
                     <li class="nav-item">
-                        <a class="nav-link active" href="Beranda.php">Beranda</a>
+                        <a class="nav-link active" href="Dashboard_Siswa.php">Beranda</a>
                     </li>
 
                     <li class="nav-item">

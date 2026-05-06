@@ -86,6 +86,14 @@ $query_hasil = mysqli_query($conn, "
             background: #f1f3f6 !important;
         }
 
+        .dropdown-menu {
+            border-radius: 10px;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+        }
+
         .logo-mobile {
             height: 60px;
         }
@@ -149,7 +157,7 @@ $query_hasil = mysqli_query($conn, "
 <body>
 
     <!-- 🔥 NAVBAR (PUNYA KAMU) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow py-2">
         <div class="container">
 
             <a class="navbar-brand d-flex align-items-center brand-mobile" href="#">
@@ -160,8 +168,16 @@ $query_hasil = mysqli_query($conn, "
                 </div>
             </a>
 
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav gap-3">
+            <button class="navbar-toggler d-lg-none"
+                type="button"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#mobileSidebar">
+
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="d-none d-lg-flex ms-auto">
+                <ul class="navbar-nav align-items-lg-center ms-auto gap-lg-3">
                     <!-- DROPDOWN -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-white"
@@ -191,8 +207,99 @@ $query_hasil = mysqli_query($conn, "
         </div>
     </nav>
 
+    <div class="offcanvas offcanvas-start bg-dark text-white"
+        tabindex="-1"
+        id="mobileSidebar">
+
+        <div class="offcanvas-header">
+
+            <h5 class="offcanvas-title">
+                Menu
+            </h5>
+
+            <button type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="offcanvas">
+            </button>
+
+        </div>
+
+        <div class="offcanvas-body">
+
+            <!-- MENU -->
+            <a href="Dashboard_Siswa.php"
+                class="d-block text-white mb-3 text-decoration-none">
+
+                <i class="bi bi-house"></i>
+                Beranda
+            </a>
+
+            <a href="Kuisioner.php"
+                class="d-block text-white mb-3 text-decoration-none">
+
+                <i class="bi bi-clipboard"></i>
+                Kuisioner
+            </a>
+
+            <a href="Data_Diri_Siswa.php"
+                class="d-block text-white mb-3 text-decoration-none">
+
+                <i class="bi bi-person"></i>
+                Data Diri
+            </a>
+
+            <a href="Riwayat_siswa.php"
+                class="d-block text-white mb-3 text-decoration-none">
+
+                <i class="bi bi-clock-history"></i>
+                Riwayat
+            </a>
+
+            <hr class="border-light">
+
+            <!-- USER -->
+            <div class="dropdown">
+
+                <a class="btn btn-outline-light dropdown-toggle w-100"
+                    data-bs-toggle="dropdown">
+
+                    <i class="bi bi-person-circle"></i>
+                    <?php echo $data['nama']; ?>
+
+                </a>
+
+                <ul class="dropdown-menu dropdown-menu-dark w-100">
+
+                    <li class="dropdown-item text-warning">
+
+                        <i class="bi bi-mortarboard-fill"></i>
+                        <?php echo $data['nama_guru'] ?? 'Guru BP'; ?>
+
+                    </li>
+
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+
+                    <li>
+                        <a href="Logout_Siswa.php"
+                            class="dropdown-item text-danger">
+
+                            <i class="bi bi-box-arrow-right"></i>
+                            Logout
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- 🔥 SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar d-none d-lg-block">
         <a href="Dashboard_Siswa.php"><i class="bi bi-house"></i> Beranda</a>
         <a href="Data_Diri_Siswa.php"><i class="bi bi-person"></i> Data Diri</a>
         <a href="Kuisioner.php"><i class="bi bi-clipboard"></i> Kuisioner</a>

@@ -156,10 +156,6 @@ $karir = mysqli_query($conn, "
             background: #f59e0b;
         }
 
-        /* 🔹 LOGOUT */
-        .logout {
-            color: #ef4444 !important;
-        }
     </style>
 
 </head>
@@ -168,12 +164,12 @@ $karir = mysqli_query($conn, "
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <h4 class="text-center py-3">Kepsek Panel</h4>
+        <h4 class="text-center py-3">KEPSEK PANEL</h4>
         <hr>
 
         <a href="Dashboard_kepsek.php" class="active"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <a href="#"><i class="bi bi-people"></i> Data Siswa</a>
-        <a href="#"><i class="bi bi-person-badge"></i> Data Guru</a>
+        <a href="View_siswa.php"><i class="bi bi-people"></i> Data Siswa</a>
+        <a href="View_guru.php"><i class="bi bi-person-badge"></i> Data Guru</a>
 
     </div>
 
@@ -193,7 +189,7 @@ $karir = mysqli_query($conn, "
                     <hr class="dropdown-divider">
                 </li>
                 <li>
-                    <a class="dropdown-item logout" href="Logout_Admin.php">
+                    <a class="dropdown-item logout text-danger" href="Logout_Admin.php">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </li>

@@ -2,6 +2,7 @@
 session_start();
 include "koneksi.php";
 
+// CEK LOGIN
 if (!isset($_SESSION['login']) || $_SESSION['role'] != 'admin') {
     header("Location: Login_Admin.php");
     exit;
@@ -10,9 +11,10 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'admin') {
 // SESSION
 $nama_admin = $_SESSION['nama_guru'] ?? 'Admin';
 
-// 🔥 QUERY JOIN (AMBIL NAMA GURU BP)
+// QUERY DATA
 $data = mysqli_query($conn, "
     SELECT 
+        siswa.id_siswa,
         siswa.nama,
         siswa.kelas,
         siswa.jurusan,
@@ -23,6 +25,7 @@ $data = mysqli_query($conn, "
         admin.nama_guru
     FROM siswa
     LEFT JOIN admin ON siswa.id_admin = admin.id_admin
+    ORDER BY siswa.created_at DESC
 ");
 ?>
 
@@ -31,18 +34,17 @@ $data = mysqli_query($conn, "
 
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Admin</title>
+    <title>Data Siswa</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         body {
             background: #f1f5f9;
-            font-family: 'Segoe UI', sans-serif;
         }
 
+        /* Sidebar tetap */
         .sidebar {
             height: 100vh;
             width: 240px;
@@ -63,21 +65,12 @@ $data = mysqli_query($conn, "
             display: block;
             border-radius: 10px;
             margin: 6px 12px;
-            text-decoration: none !important;
-            /* ⬅️ ini penting */
-            transition: all 0.3s ease;
+            text-decoration: none;
         }
 
         .sidebar a:hover {
             background: rgba(255, 255, 255, 0.08);
             color: #fff;
-            transform: translateX(5px);
-        }
-
-        .sidebar a.active {
-            background: #38bdf8;
-            color: #0f172a !important;
-            font-weight: 600;
         }
 
         .content {
@@ -87,94 +80,13 @@ $data = mysqli_query($conn, "
 
         .navbar {
             margin-left: 240px;
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        h3 {
-            font-weight: 600;
-        }
-
-        .icon-box {
-            font-size: 28px;
-            padding: 12px;
-            border-radius: 10px;
-            color: white;
-        }
-
-        .bg-blue {
-            background: #3b82f6;
-        }
-
-        .bg-green {
-            background: #22c55e;
-        }
-
-        .logout {
-            color: #ef4444 !important;
-        }
-
-        .table-clean {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
-        }
-
-        .table-clean thead {
-            background: #f8fafc;
-        }
-
-        .table-clean th {
-            font-weight: 600;
-            font-size: 14px;
-            color: #374151;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 12px;
-        }
-
-        .table-clean td {
-            padding: 12px;
-            font-size: 14px;
-            color: #4b5563;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .table-clean tbody tr:hover {
-            background: #f9fafb;
-        }
-
-        .btn-clean {
-            background: #ffb700;
-            border: none;
-            color: #000000;
-            padding: 5px 10px;
-            font-size: 13px;
-            border-radius: 6px;
-        }
-
-        .btn-clean:hover {
-            background: #d1d5db;
-        }
-
-        .badge-clean {
-            background: #eb8c27;
-            color: #ffffff;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-        }
-
-        #submenuUser a {
-            font-size: 14px;
-            padding-left: 30px;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- 🔹 SIDEBAR -->
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <h4 class="text-center py-3">ADMIN PANEL</h4>
         <hr>
@@ -195,11 +107,11 @@ $data = mysqli_query($conn, "
                 </a>
             </div>
         </div>
-        <a href="#"><i class="bi bi-file-text"></i> Data Soal</a>
-        <a href="#"><i class="bi bi-clock-history"></i> Riwayat Hasil</a>
+        <a href="Data_soal.php" class="bi bi-file-text"></i> Data Soal</a>
+        <a href="Riwayat_Admin.php"><i class="bi bi-clock-history"></i> Riwayat Hasil</a>
     </div>
 
-    <!-- 🔹 NAVBAR -->
+    <!-- NAVBAR -->
     <nav class="navbar navbar-light bg-light px-3 d-flex justify-content-end">
 
         <!-- Dropdown Profil -->
@@ -217,7 +129,7 @@ $data = mysqli_query($conn, "
                     <hr class="dropdown-divider">
                 </li>
                 <li>
-                    <a class="dropdown-item logout" href="Logout_Admin.php">
+                    <a class="dropdown-item text-danger" href="Logout_Admin.php">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </li>
@@ -226,67 +138,93 @@ $data = mysqli_query($conn, "
 
     </nav>
 
-    <!-- 🔹 CONTENT -->
+    <!-- CONTENT -->
     <div class="content">
         <div class="topbar mb-4">
             <strong>Home</strong> / Data Siswa
         </div>
-        <div class="table-clean">
-            <table class="table mb-0">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama</th>
-                        <th>Kelas</th>
-                        <th>Alamat</th>
-                        <th>No HP</th>
-                        <th>Guru BP</th>
-                        <th>Tanggal</th>
-                    </tr>
-                </thead>
+        <div class="card shadow-sm">
+            <div class="card-body">
 
-                <tbody>
-                    <?php $no = 1;
-                    while ($row = mysqli_fetch_assoc($data)) { ?>
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <thead class="table-light">
                         <tr>
-
-                            <td><?= $no++ ?></td>
-
-                            <td><?= $row['nama'] ?></td>
-
-                            <td>
-                                <span class="badge-clean">
-                                    <?= $row['kelas'] . ' ' . $row['jurusan'] . ' ' . $row['subkelas'] ?>
-                                </span>
-                            </td>
-
-                            <td><?= $row['alamat'] ?? '-' ?></td>
-
-                            <td><?= $row['no_hp'] ?? '-' ?></td>
-
-                            <td>
-                                <span class="badge bg-success">
-                                    <?= $row['nama_guru'] ?? 'Belum Ada' ?>
-                                </span>
-                            </td>
-
-                            <td>
-                                <?= date('d M Y H:i', strtotime($row['created_at'])) ?>
-                            </td>
-
+                            <th>No</th>
+                            <th>Nama</th>
+                            <th>Kelas</th>
+                            <th>Alamat</th>
+                            <th>No HP</th>
+                            <th>Guru BP</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
                         </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                        <?php $no = 1;
+                        while ($row = mysqli_fetch_assoc($data)) { ?>
+                            <tr>
+                                <td><?= $no++ ?></td>
+
+                                <td><?= $row['nama'] ?></td>
+
+                                <td>
+                                    <span class="badge bg-warning text-dark">
+                                        <?= $row['kelas'] . ' ' . $row['jurusan'] . ' ' . $row['subkelas'] ?>
+                                    </span>
+                                </td>
+
+                                <td><?= $row['alamat'] ?? '-' ?></td>
+
+                                <td><?= $row['no_hp'] ?? '-' ?></td>
+
+                                <td>
+                                    <span class="badge bg-success">
+                                        <?= $row['nama_guru'] ?? 'Belum Ada' ?>
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <?= date('d M Y H:i', strtotime($row['created_at'])) ?>
+                                </td>
+
+                                <td>
+                                    <a href="detail_siswa.php?id=<?= $row['id_siswa']; ?>"
+                                        class="btn btn-info btn-sm">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <a href="edit_siswa.php?id=<?= $row['id_siswa']; ?>"
+                                        class="btn btn-warning btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <a href="hapus_siswa.php?id=<?= $row['id_siswa']; ?>"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Yakin hapus?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+
+            </div>
         </div>
+
     </div>
 
-    <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function toggleMenu() {
-            let menu = document.getElementById("submenuUser");
-            menu.style.display = (menu.style.display === "none") ? "block" : "none";
+            var menu = document.getElementById("submenuUser");
+
+            if (menu.style.display === "none") {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
         }
     </script>
 </body>

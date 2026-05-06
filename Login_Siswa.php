@@ -1,3 +1,7 @@
+<?php
+session_start();
+$no_hp = $_SESSION['no_hp_guru'] ?? null;
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -54,7 +58,16 @@
 
                 <?php elseif ($_GET['error'] == 'belum_aktif'): ?>
                     <div class="alert alert-warning">
-                        Akun Anda belum diaktivasi oleh admin!
+                        Akun Anda belum diaktivasi! <br><br>
+
+                        <?php if ($no_hp): ?>
+                            <?php $wa = "62" . substr($no_hp, 1); ?>
+
+                            Hubungi Guru BP Anda: <br>
+                            <b><?= $no_hp ?></b>
+
+                    
+                        <?php endif; ?>
                     </div>
 
                 <?php endif; ?>

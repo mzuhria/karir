@@ -14,6 +14,7 @@ $nama     = $_POST['nama'];
 $username = $_POST['username'];
 $password = $_POST['password'];
 $kelas_akses = $_POST['kelas_akses'];
+$no_hp = $_POST['no_hp'];
 
 // 🔹 VALIDASI SEDERHANA
 if (empty($nama) || empty($username)) {
@@ -34,17 +35,17 @@ if (!empty($password)) {
     // jika password diisi → update semua
     $hash = password_hash($password, PASSWORD_DEFAULT);
 
-    $stmt = $conn->prepare("UPDATE admin SET nama_guru=?, username=?, password=?, kelas_akses=? WHERE id_admin=?");
-    $stmt->bind_param("ssssi", $nama, $username, $hash, $kelas_akses, $id);;
+    $stmt = $conn->prepare("UPDATE admin SET nama_guru=?, username=?, password=?, kelas_akses=?, no_hp=? WHERE id_admin=?");
+    $stmt->bind_param("sssssi", $nama, $username, $hash, $kelas_akses, $no_hp, $id);
 } else {
     // jika password kosong → jangan ubah password
-    $stmt = $conn->prepare("UPDATE admin SET nama_guru=?, username=?, kelas_akses=? WHERE id_admin=?");
-    $stmt->bind_param("sssi", $nama, $username, $kelas_akses, $id);
+    $stmt = $conn->prepare("UPDATE admin SET nama_guru=?, username=?, kelas_akses=?, no_hp=? WHERE id_admin=?");
+    $stmt->bind_param("ssssi", $nama, $username, $kelas_akses, $no_hp, $id);
 }
 
 // eksekusi
 if ($stmt->execute()) {
-    echo "<script>alert('Data berhasil diupdate'); window.location='Kelola_user.php';</script>";
+    echo "<script>alert('Data berhasil diupdate'); window.location='Data_admin.php';</script>";
 } else {
     echo "Gagal update: " . $stmt->error;
 }

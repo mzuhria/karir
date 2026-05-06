@@ -86,7 +86,7 @@ $data = mysqli_fetch_assoc($query);
         <div class="container">
 
             <a class="navbar-brand d-flex align-items-center" href="#">
-                <img src="img/logosekolah.png" height="50" class="me-2">
+                <img src="asset/logosekolah.png" height="50" class="me-2">
                 <div>
                     <div class="fw-bold">SMK Dharma Bahari Surabaya</div>
                     <small>"Karakter Kuat, Prestasi Hebat, Masa Depan Siap"</small>
@@ -126,7 +126,7 @@ $data = mysqli_fetch_assoc($query);
 
     <!-- 🔥 SIDEBAR -->
     <div class="sidebar">
-        <a href="Dashboard_siswa.php"><i class="bi bi-house"></i> Beranda</a>
+        <a href="Dashboard_Siswa.php"><i class="bi bi-house"></i> Beranda</a>
         <a href="Data_Diri_Siswa.php" class="fw-bold text-primary"><i class="bi bi-person"></i> Data Diri</a>
         <a href="Kuisioner.php"><i class="bi bi-clipboard"></i> Kuisioner</a>
         <a href="Riwayat_siswa.php"><i class="bi bi-clock-history"></i> Riwayat</a>

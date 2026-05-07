@@ -114,6 +114,7 @@ $username  = $_SESSION['username'] ?? '-';
         body {
             background: #f4f6f9;
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
         }
 
         /* SIDEBAR */
@@ -130,13 +131,24 @@ $username  = $_SESSION['username'] ?? '-';
             overflow-y: auto;
         }
 
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: #495057;
+            color: white;
+        }
+
+        /* OVERLAY */
         .overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
             z-index: 998;
             display: none;
         }
@@ -145,79 +157,64 @@ $username  = $_SESSION['username'] ?? '-';
             display: block;
         }
 
-        .sidebar a {
-            color: #ddd;
-            text-decoration: none;
-            display: block;
-            padding: 12px 20px;
-        }
-
-        .sidebar a:hover {
-            background: #495057;
-            color: white;
-        }
-
         /* CONTENT */
         .content {
             margin-left: 240px;
             padding: 20px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
 
         /* TOPBAR */
         .topbar {
             background: #6f42c1;
-            padding: 12px 20px;
+            padding: 14px 18px;
             color: white;
-            border-radius: 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         /* CARD */
         .card-custom {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
-        /* PAGINATION */
-        .pagination {
-            font-size: 13px;
-        }
-
-        .page-link {
-            padding: 6px 10px;
-        }
-
-        /* BUTTON SIDEBAR */
+        /* TOGGLE BUTTON */
         #toggleSidebar {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 2001;
-            border-radius: 10px;
-            width: 45px;
-            height: 45px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
         }
 
-        /* DESKTOP */
-        @media (min-width: 769px) {
-            #toggleSidebar {
-                display: none;
-            }
+        /* TABLE */
+        .table td,
+        .table th {
+            vertical-align: middle;
         }
 
         /* MOBILE */
         @media (max-width: 768px) {
 
-            body.sidebar-open {
-                overflow: hidden;
+            body {
+                overflow-x: hidden;
+            }
+
+            /* TOGGLE */
+            #toggleSidebar {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                border: none;
             }
 
             /* SIDEBAR */
             .sidebar {
-                width: 100%;
-                left: -100%;
-                height: 100vh;
+                left: -240px;
+                width: 240px;
             }
 
             .sidebar.show {
@@ -226,41 +223,31 @@ $username  = $_SESSION['username'] ?? '-';
 
             /* CONTENT */
             .content {
-                margin-left: 0 !important;
+                margin-left: 0;
+                width: 100%;
                 padding: 12px;
             }
 
             /* TOPBAR */
             .topbar {
-                padding-left: 70px;
                 font-size: 14px;
-            }
-
-            /* CARD */
-            .card-body {
                 padding: 12px;
             }
 
-            h5 {
-                font-size: 16px;
-            }
-
-            /* FILTER & BUTTON */
+            /* FLEX FILTER */
             .d-flex.justify-content-between {
-                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: stretch !important;
                 gap: 10px;
             }
 
-            form.d-flex {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-
-            form.d-flex .form-select,
-            form.d-flex button {
+            form.d-flex.gap-2 {
+                flex-direction: column;
                 width: 100%;
             }
 
+            form.d-flex.gap-2 .form-select,
+            form.d-flex.gap-2 button,
             .btn-success.btn-sm {
                 width: 100%;
             }
@@ -272,47 +259,29 @@ $username  = $_SESSION['username'] ?? '-';
             }
 
             .table {
-                width: 100%;
+                min-width: 700px;
             }
 
-            .table td,
-            .table th {
+            .table th,
+            .table td {
                 font-size: 13px;
-                vertical-align: middle;
-            }
-
-            /* KOLOM PERTANYAAN */
-            .table td:nth-child(2),
-            .table th:nth-child(2) {
-                min-width: 220px;
-                white-space: normal;
-            }
-
-            /* KOLOM AKSI */
-            .table td:last-child,
-            .table th:last-child {
-                min-width: 120px;
                 white-space: nowrap;
             }
 
-            /* BADGE */
-            .badge {
-                font-size: 11px;
+            .table td:nth-child(2) {
+                white-space: normal;
+                min-width: 220px;
             }
 
-            /* BUTTON */
-            .btn-sm {
-                font-size: 12px;
-                padding: 4px 8px;
+            /* PAGINATION */
+            .pagination {
+                flex-wrap: wrap;
+                gap: 5px;
             }
 
             /* MODAL */
             .modal-dialog {
                 margin: 10px;
-            }
-
-            .modal-content {
-                border-radius: 12px;
             }
         }
     </style>
@@ -343,10 +312,10 @@ $username  = $_SESSION['username'] ?? '-';
     <!-- CONTENT -->
     <div class="content" id="content">
 
-        <div class="topbar mb-4 d-flex align-items-center gap-2">
+        <div class="topbar mb-4">
 
             <button class="btn btn-light" id="toggleSidebar">
-                <i class="bi bi-list fs-4"></i>
+                <i class="bi bi-list"></i>
             </button>
 
             <div>
@@ -574,39 +543,27 @@ $username  = $_SESSION['username'] ?? '-';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const toggleBtn = document.getElementById('toggleSidebar');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
+        const toggleBtn = document.getElementById("toggleSidebar");
+        const sidebar = document.getElementById("sidebar");
+        const overlay = document.getElementById("overlay");
 
-        toggleBtn.addEventListener('click', () => {
-
-            if (window.innerWidth <= 768) {
-
-                sidebar.classList.toggle('show');
-                overlay.classList.toggle('show');
-
-                // lock scroll body
-                document.body.classList.toggle('sidebar-open');
-            }
-
+        toggleBtn.addEventListener("click", function() {
+            sidebar.classList.toggle("show");
+            overlay.classList.toggle("show");
         });
 
-        overlay.addEventListener('click', closeSidebar);
+        overlay.addEventListener("click", function() {
+            sidebar.classList.remove("show");
+            overlay.classList.remove("show");
+        });
 
-        function closeSidebar() {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-            document.body.classList.remove('sidebar-open');
-        }
-
-        // auto close ketika klik menu
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', () => {
-
+        // Tutup sidebar saat klik menu mobile
+        document.querySelectorAll(".sidebar a").forEach(link => {
+            link.addEventListener("click", function() {
                 if (window.innerWidth <= 768) {
-                    closeSidebar();
+                    sidebar.classList.remove("show");
+                    overlay.classList.remove("show");
                 }
-
             });
         });
     </script>

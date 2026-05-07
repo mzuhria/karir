@@ -71,7 +71,7 @@ if (isset($_GET['aktifkan'])) {
 if (isset($_GET['nonaktifkan'])) {
     $id = $_GET['nonaktifkan'];
     mysqli_query($conn, "UPDATE siswa SET status='nonaktif' WHERE id_siswa='$id' AND id_admin='$id_admin'");
-}  
+}
 
 if (isset($_POST['update_siswa'])) {
 
@@ -183,8 +183,8 @@ if (!$query) {
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Siswa</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -199,8 +199,27 @@ if (!$query) {
             width: 240px;
             height: 100vh;
             position: fixed;
+            top: 0;
+            left: 0;
             background: #343a40;
             color: white;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 998;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
         }
 
         .sidebar a {
@@ -219,6 +238,24 @@ if (!$query) {
         .content {
             margin-left: 240px;
             padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #toggleSidebar {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 2001;
+            border-radius: 10px;
+            width: 45px;
+            height: 45px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (min-width: 769px) {
+            #toggleSidebar {
+                display: none;
+            }
         }
 
         /* TOPBAR */
@@ -233,14 +270,39 @@ if (!$query) {
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
+
+        @media (max-width: 768px) {
+
+            .sidebar {
+                width: 100%;
+                left: -100%;
+                height: 100vh;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0 !important;
+                padding: 15px;
+            }
+
+            .topbar {
+                padding-left: 70px;
+            }
+
+            .table-responsive {
+                font-size: 13px;
+            }
+        }
     </style>
 
 </head>
 
 <body>
     <!-- SIDEBAR -->
-    <div class="sidebar">
-
+    <div class="sidebar" id="sidebar">
         <!-- PROFIL -->
         <div class="py-3 border-bottom text-center">
             <i class="bi bi-person-circle fs-3"></i>
@@ -258,11 +320,21 @@ if (!$query) {
         <a href="Logout_Admin.php" class="text-danger"><i class="bi bi-box-arrow-right me-1"></i> Logout</a>
     </div>
 
-    <!-- CONTENT -->
-    <div class="content">
+    <div class="overlay" id="overlay"></div>
 
-        <div class="topbar mb-4">
-            <strong>Home</strong> / Kelola Siswa
+    <!-- CONTENT -->
+    <div class="content" id="content">
+
+        <div class="topbar mb-4 d-flex align-items-center gap-2">
+
+            <button class="btn btn-light" id="toggleSidebar">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+
+            <div>
+                <strong>Home</strong> / Kelola Siswa
+            </div>
+
         </div>
 
         <div class="card card-custom">
@@ -609,6 +681,25 @@ if (!$query) {
 
         // langsung generate saat halaman load
         generateSubkelas();
+    </script>
+    <script>
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        toggleBtn.addEventListener('click', () => {
+
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('show');
+            }
+
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 

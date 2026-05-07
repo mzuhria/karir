@@ -65,7 +65,16 @@ if (isset($_GET['hapus'])) {
 // =======================
 // FILTER DATA
 // =======================
-$no = 1;
+$limit = 5;
+
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($page < 1) $page = 1;
+
+$start = ($page - 1) * $limit;
+
+$no = $start + 1;
+
 $where = "WHERE id_admin='$id_admin'";
 
 if (!empty($_GET['filter_jurusan'])) {
@@ -73,12 +82,19 @@ if (!empty($_GET['filter_jurusan'])) {
     $where .= " AND jurusan='$filter'";
 }
 
+$total_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM kuisioner $where");
+$total_data = mysqli_fetch_assoc($total_query)['total'];
+
+$total_pages = ceil($total_data / $limit);
 // =======================
 // QUERY DATA
 // =======================
 $data = mysqli_query(
     $conn,
-    "SELECT * FROM kuisioner $where ORDER BY jurusan ASC, id_soal ASC"
+    "SELECT * FROM kuisioner 
+     $where 
+     ORDER BY jurusan ASC, id_soal ASC
+     LIMIT $start, $limit"
 );
 
 $nama_guru = $_SESSION['nama_guru'] ?? 'Guru BP';
@@ -100,12 +116,33 @@ $username  = $_SESSION['username'] ?? '-';
             font-family: 'Poppins', sans-serif;
         }
 
+        /* SIDEBAR */
         .sidebar {
             width: 240px;
             height: 100vh;
             position: fixed;
+            top: 0;
+            left: 0;
             background: #343a40;
             color: white;
+            transition: all 0.3s ease;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 998;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
         }
 
         .sidebar a {
@@ -120,11 +157,14 @@ $username  = $_SESSION['username'] ?? '-';
             color: white;
         }
 
+        /* CONTENT */
         .content {
             margin-left: 240px;
             padding: 20px;
+            transition: all 0.3s ease;
         }
 
+        /* TOPBAR */
         .topbar {
             background: #6f42c1;
             padding: 12px 20px;
@@ -132,9 +172,148 @@ $username  = $_SESSION['username'] ?? '-';
             border-radius: 8px;
         }
 
+        /* CARD */
         .card-custom {
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* PAGINATION */
+        .pagination {
+            font-size: 13px;
+        }
+
+        .page-link {
+            padding: 6px 10px;
+        }
+
+        /* BUTTON SIDEBAR */
+        #toggleSidebar {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 2001;
+            border-radius: 10px;
+            width: 45px;
+            height: 45px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* DESKTOP */
+        @media (min-width: 769px) {
+            #toggleSidebar {
+                display: none;
+            }
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+
+            body.sidebar-open {
+                overflow: hidden;
+            }
+
+            /* SIDEBAR */
+            .sidebar {
+                width: 100%;
+                left: -100%;
+                height: 100vh;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            /* CONTENT */
+            .content {
+                margin-left: 0 !important;
+                padding: 12px;
+            }
+
+            /* TOPBAR */
+            .topbar {
+                padding-left: 70px;
+                font-size: 14px;
+            }
+
+            /* CARD */
+            .card-body {
+                padding: 12px;
+            }
+
+            h5 {
+                font-size: 16px;
+            }
+
+            /* FILTER & BUTTON */
+            .d-flex.justify-content-between {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            form.d-flex {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            form.d-flex .form-select,
+            form.d-flex button {
+                width: 100%;
+            }
+
+            .btn-success.btn-sm {
+                width: 100%;
+            }
+
+            /* TABLE */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table {
+                width: 100%;
+            }
+
+            .table td,
+            .table th {
+                font-size: 13px;
+                vertical-align: middle;
+            }
+
+            /* KOLOM PERTANYAAN */
+            .table td:nth-child(2),
+            .table th:nth-child(2) {
+                min-width: 220px;
+                white-space: normal;
+            }
+
+            /* KOLOM AKSI */
+            .table td:last-child,
+            .table th:last-child {
+                min-width: 120px;
+                white-space: nowrap;
+            }
+
+            /* BADGE */
+            .badge {
+                font-size: 11px;
+            }
+
+            /* BUTTON */
+            .btn-sm {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+
+            /* MODAL */
+            .modal-dialog {
+                margin: 10px;
+            }
+
+            .modal-content {
+                border-radius: 12px;
+            }
         }
     </style>
 </head>
@@ -142,7 +321,7 @@ $username  = $_SESSION['username'] ?? '-';
 <body>
 
     <!-- SIDEBAR -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="py-3 border-bottom text-center">
             <i class="bi bi-person-circle fs-3"></i>
             <div style="font-size:14px;">
@@ -160,12 +339,20 @@ $username  = $_SESSION['username'] ?? '-';
             <i class="bi bi-box-arrow-right me-1"></i> Logout
         </a>
     </div>
-
+    <div class="overlay" id="overlay"></div>
     <!-- CONTENT -->
-    <div class="content">
+    <div class="content" id="content">
 
-        <div class="topbar mb-4">
-            <strong>Home</strong> / Kelola Soal
+        <div class="topbar mb-4 d-flex align-items-center gap-2">
+
+            <button class="btn btn-light" id="toggleSidebar">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+
+            <div>
+                <strong>Home</strong> / Kelola Soal
+            </div>
+
         </div>
 
         <div class="card card-custom">
@@ -309,6 +496,40 @@ $username  = $_SESSION['username'] ?? '-';
 
                         </tbody>
                     </table>
+                    <nav class="mt-3">
+                        <ul class="pagination justify-content-center flex-wrap">
+
+                            <?php if ($page > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page=<?= $page - 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                        Previous
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                    <a class="page-link"
+                                        href="?page=<?= $i ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                        <?= $i ?>
+                                    </a>
+                                </li>
+
+                            <?php endfor; ?>
+
+                            <?php if ($page < $total_pages): ?>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page=<?= $page + 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                        Next
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+
+                        </ul>
+                    </nav>
                 </div>
 
             </div>
@@ -352,7 +573,43 @@ $username  = $_SESSION['username'] ?? '-';
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const toggleBtn = document.getElementById('toggleSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
 
+        toggleBtn.addEventListener('click', () => {
+
+            if (window.innerWidth <= 768) {
+
+                sidebar.classList.toggle('show');
+                overlay.classList.toggle('show');
+
+                // lock scroll body
+                document.body.classList.toggle('sidebar-open');
+            }
+
+        });
+
+        overlay.addEventListener('click', closeSidebar);
+
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
+        }
+
+        // auto close ketika klik menu
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+
+            });
+        });
+    </script>
 </body>
 
 </html>

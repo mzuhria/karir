@@ -30,31 +30,35 @@ $aktivitas = mysqli_query($conn, "
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Admin</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         body {
             background: #f1f5f9;
+            overflow-x: hidden;
         }
 
-        /* Sidebar saja yang custom */
+        /* SIDEBAR */
         .sidebar {
             height: 100vh;
             width: 240px;
             position: fixed;
+            top: 0;
+            left: 0;
             background: linear-gradient(180deg, #1e293b, #0f172a);
             color: white;
             padding-top: 20px;
+            transition: all 0.3s ease;
+            z-index: 1050;
         }
 
         .sidebar h4 {
             font-weight: bold;
             letter-spacing: 1px;
         }
-
 
         .sidebar a {
             color: #cbd5e1;
@@ -63,6 +67,7 @@ $aktivitas = mysqli_query($conn, "
             border-radius: 10px;
             margin: 6px 12px;
             text-decoration: none;
+            transition: 0.2s;
         }
 
         .sidebar a:hover {
@@ -70,13 +75,50 @@ $aktivitas = mysqli_query($conn, "
             color: #fff;
         }
 
+        /* CONTENT */
         .content {
             margin-left: 240px;
-            padding: 30px;
+            padding: 25px;
+            transition: all 0.3s ease;
         }
 
-        .navbar {
+        /* NAVBAR */
+        .topbar {
             margin-left: 240px;
+            transition: all 0.3s ease;
+        }
+
+        /* TOGGLE BUTTON */
+        .toggle-btn {
+            display: none;
+            border: none;
+            background: none;
+            font-size: 28px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 768px) {
+
+            .sidebar {
+                left: -240px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .topbar {
+                margin-left: 0;
+            }
+
+            .toggle-btn {
+                display: block;
+            }
         }
     </style>
 </head>
@@ -109,11 +151,18 @@ $aktivitas = mysqli_query($conn, "
     </div>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-light bg-light px-3 d-flex justify-content-end">
+    <nav class="navbar navbar-light bg-light px-3 d-flex justify-content-between topbar shadow-sm">
 
-        <!-- Dropdown Profil -->
-        <div class="dropdown">
-            <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" data-bs-toggle="dropdown">
+        <!-- tombol toggle -->
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- profile -->
+        <div class="dropdown ms-auto">
+            <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                href="#" data-bs-toggle="dropdown">
+
                 <i class="bi bi-person-circle fs-4 me-2"></i>
                 <strong><?php echo $nama_admin; ?></strong>
             </a>
@@ -122,11 +171,14 @@ $aktivitas = mysqli_query($conn, "
                 <li class="dropdown-item">
                     <i class="bi bi-person"></i> <?php echo $nama_admin; ?>
                 </li>
+
                 <li>
                     <hr class="dropdown-divider">
                 </li>
+
                 <li>
-                    <a class="dropdown-item logout text-danger" href="Logout_Admin.php">
+                    <a class="dropdown-item logout text-danger"
+                        href="Logout_Admin.php">
                         <i class="bi bi-box-arrow-right"></i> Logout
                     </a>
                 </li>
@@ -236,6 +288,36 @@ $aktivitas = mysqli_query($conn, "
                 menu.style.display = "none";
             }
         }
+    </script>
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById("submenuUser");
+
+            if (menu.style.display === "none") {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
+        }
+
+        function toggleSidebar() {
+            document.querySelector(".sidebar").classList.toggle("active");
+        }
+
+        // otomatis close ketika klik luar sidebar
+        document.addEventListener("click", function(event) {
+
+            const sidebar = document.querySelector(".sidebar");
+            const toggleBtn = document.querySelector(".toggle-btn");
+
+            // jika klik bukan sidebar & bukan tombol
+            if (
+                !sidebar.contains(event.target) &&
+                !toggleBtn.contains(event.target)
+            ) {
+                sidebar.classList.remove("active");
+            }
+        });
     </script>
 
 </body>

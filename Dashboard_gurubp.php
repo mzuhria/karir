@@ -54,8 +54,10 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
         body {
             background: #f4f6f9;
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
         }
 
+        /* SIDEBAR */
         .sidebar {
             width: 240px;
             height: 100vh;
@@ -66,15 +68,27 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
             color: white;
             transition: all 0.3s ease;
             z-index: 999;
+            overflow-y: auto;
         }
 
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: #495057;
+            color: white;
+        }
+
+        /* OVERLAY */
         .overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
             z-index: 998;
             display: none;
         }
@@ -83,81 +97,87 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
             display: block;
         }
 
-        .dropdown-menu {
-            position: absolute !important;
-            z-index: 9999 !important;
-        }
-
-        .sidebar a {
-            color: #ddd;
-            text-decoration: none;
-            display: block;
-            padding: 12px 20px;
-        }
-
-        .sidebar a:hover {
-            background: #495057;
-            color: white;
-        }
-
+        /* CONTENT */
         .content {
             margin-left: 240px;
             padding: 20px;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
 
-        .content.full {
-            margin-left: 0;
-        }
-
+        /* TOPBAR */
         .topbar {
             background: #6f42c1;
-            padding: 12px 20px;
+            padding: 14px 18px;
             color: white;
-            border-radius: 8px;
-        }
-
-        #toggleSidebar {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 2001;
             border-radius: 10px;
-            width: 45px;
-            height: 45px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        @media (min-width: 769px) {
-            #toggleSidebar {
-                display: none;
-            }
-        }
-
+        /* CARD */
         .card-custom {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
+        /* TOGGLE BUTTON */
+        #toggleSidebar {
+            display: none;
+        }
+
+        /* TABLE */
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        /* MOBILE */
         @media (max-width: 768px) {
 
+            body {
+                overflow-x: hidden;
+            }
+
+            /* TOGGLE */
+            #toggleSidebar {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                border: none;
+            }
+
+            /* SIDEBAR */
             .sidebar {
-                width: 100%;
-                left: -100%;
-                height: 100vh;
+                left: -240px;
+                width: 240px;
             }
 
             .sidebar.show {
                 left: 0;
             }
 
+            /* CONTENT */
             .content {
-                margin-left: 0 !important;
-                padding: 15px;
+                margin-left: 0;
+                width: 100%;
+                padding: 12px;
             }
 
+            /* TOPBAR */
             .topbar {
-                padding-left: 70px;
+                font-size: 14px;
+                padding: 12px;
+            }
+
+            /* TABLE */
+            .table th,
+            .table td {
+                font-size: 13px;
             }
         }
     </style>
@@ -188,10 +208,10 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
     <!-- CONTENT -->
     <div class="content" id="content">
 
-        <div class="topbar mb-4 d-flex align-items-center gap-2">
+        <div class="topbar mb-4">
 
             <button class="btn btn-light" id="toggleSidebar">
-                <i class="bi bi-list fs-4"></i>
+                <i class="bi bi-list"></i>
             </button>
 
             <div>

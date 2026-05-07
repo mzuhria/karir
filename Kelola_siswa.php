@@ -8,10 +8,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'guru_bp') {
 
 include "koneksi.php";
 $id_admin = $_SESSION['id_admin'];
-$kelas_akses = $_SESSION['kelas_akses'];
 $nama_guru = $_SESSION['nama_guru'] ?? 'Guru BP';
-$username  = $_SESSION['username'] ?? '-';
-$where = "WHERE siswa.id_admin='$id_admin'";
 $search = $_GET['search'] ?? '';
 
 //modal Hapus
@@ -192,6 +189,7 @@ if (!$query) {
         body {
             background: #f4f6f9;
             font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
         }
 
         /* SIDEBAR */
@@ -205,15 +203,27 @@ if (!$query) {
             color: white;
             transition: all 0.3s ease;
             z-index: 999;
+            overflow-y: auto;
         }
 
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            transition: 0.2s;
+        }
+
+        .sidebar a:hover {
+            background: #495057;
+            color: white;
+        }
+
+        /* OVERLAY */
         .overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
             z-index: 998;
             display: none;
         }
@@ -222,78 +232,102 @@ if (!$query) {
             display: block;
         }
 
-        .sidebar a {
-            color: #ddd;
-            text-decoration: none;
-            display: block;
-            padding: 12px 20px;
-        }
-
-        .sidebar a:hover {
-            background: #495057;
-            color: white;
-        }
-
         /* CONTENT */
         .content {
             margin-left: 240px;
             padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        #toggleSidebar {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 2001;
-            border-radius: 10px;
-            width: 45px;
-            height: 45px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        @media (min-width: 769px) {
-            #toggleSidebar {
-                display: none;
-            }
+            transition: 0.3s;
         }
 
         /* TOPBAR */
         .topbar {
             background: #6f42c1;
-            padding: 12px 20px;
+            padding: 14px 18px;
             color: white;
-            border-radius: 8px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
+        /* CARD */
         .card-custom {
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
+        /* TOGGLE BUTTON */
+        #toggleSidebar {
+            display: none;
+        }
+
+        /* TABLE */
+        .table td,
+        .table th {
+            vertical-align: middle;
+        }
+
+        /* MOBILE */
         @media (max-width: 768px) {
 
+            body {
+                overflow-x: hidden;
+            }
+
+            /* TOGGLE */
+            #toggleSidebar {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                border: none;
+            }
+
+            /* SIDEBAR */
             .sidebar {
-                width: 100%;
-                left: -100%;
-                height: 100vh;
+                left: -240px;
+                width: 240px;
             }
 
             .sidebar.show {
                 left: 0;
             }
 
+            /* CONTENT */
             .content {
-                margin-left: 0 !important;
-                padding: 15px;
+                margin-left: 0;
+                width: 100%;
+                padding: 12px;
             }
 
+            /* TOPBAR */
             .topbar {
-                padding-left: 70px;
+                font-size: 14px;
+                padding: 12px;
             }
 
+            /* TABLE */
             .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .table {
+                min-width: 900px;
+            }
+
+            .table th,
+            .table td {
                 font-size: 13px;
+                white-space: nowrap;
+            }
+
+            /* MODAL */
+            .modal-dialog {
+                margin: 10px;
             }
         }
     </style>
@@ -325,10 +359,10 @@ if (!$query) {
     <!-- CONTENT -->
     <div class="content" id="content">
 
-        <div class="topbar mb-4 d-flex align-items-center gap-2">
+        <div class="topbar mb-4">
 
             <button class="btn btn-light" id="toggleSidebar">
-                <i class="bi bi-list fs-4"></i>
+                <i class="bi bi-list"></i>
             </button>
 
             <div>
@@ -351,7 +385,7 @@ if (!$query) {
                                 name="search"
                                 value="<?= htmlspecialchars($search) ?>"
                                 class="form-control form-control-sm me-2"
-                                placeholder="Cari nama, jurusan..."
+                                placeholder="Cari nama atau email..."
                                 style="width:200px;">
 
                             <button class="btn btn-primary btn-sm">

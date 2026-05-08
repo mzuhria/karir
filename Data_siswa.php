@@ -11,6 +11,32 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'admin') {
 // SESSION
 $nama_admin = $_SESSION['nama_guru'] ?? 'Admin';
 
+// HAPUS SISWA
+if (isset($_GET['hapus'])) {
+
+    $id = $_GET['hapus'];
+
+    // HAPUS DATA RELASI
+    mysqli_query($conn, "
+        DELETE FROM jawaban
+        WHERE id_siswa='$id'
+    ");
+
+    mysqli_query($conn, "
+        DELETE FROM hasil
+        WHERE id_siswa='$id'
+    ");
+
+    // HAPUS SISWA
+    mysqli_query($conn, "
+        DELETE FROM siswa
+        WHERE id_siswa='$id'
+    ");
+
+    header("Location: Data_siswa.php");
+    exit;
+}
+
 // Search
 $search = $_GET['search'] ?? '';
 
@@ -315,23 +341,155 @@ $total_page = ceil($total_data / $limit);
                                     </td>
 
                                     <td>
-                                        <a href="detail_siswa.php?id=<?= $row['id_siswa']; ?>"
-                                            class="btn btn-info btn-sm">
+
+                                        <!-- DETAIL -->
+                                        <button class="btn btn-info btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#detail<?= $row['id_siswa'] ?>">
+
                                             <i class="bi bi-eye"></i>
-                                        </a>
+                                        </button>
 
-                                        <a href="edit_siswa.php?id=<?= $row['id_siswa']; ?>"
-                                            class="btn btn-warning btn-sm">
+                                        <!-- EDIT -->
+                                        <button class="btn btn-warning btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#edit<?= $row['id_siswa'] ?>">
+
                                             <i class="bi bi-pencil"></i>
-                                        </a>
+                                        </button>
 
-                                        <a href="hapus_siswa.php?id=<?= $row['id_siswa']; ?>"
+                                        <!-- HAPUS -->
+                                        <a href="Data_siswa.php?hapus=<?= $row['id_siswa']; ?>"
                                             class="btn btn-danger btn-sm"
                                             onclick="return confirm('Yakin hapus?')">
+
                                             <i class="bi bi-trash"></i>
                                         </a>
+
                                     </td>
                                 </tr>
+                                <!-- MODAL DETAIL -->
+                                <div class="modal fade"
+                                    id="detail<?= $row['id_siswa'] ?>"
+                                    tabindex="-1">
+
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">
+                                                    Detail Siswa
+                                                </h5>
+
+                                                <button type="button"
+                                                    class="btn-close"
+                                                    data-bs-dismiss="modal">
+                                                </button>
+                                            </div>
+
+                                            <div class="modal-body">
+
+                                                <p><b>Nama:</b> <?= $row['nama'] ?></p>
+
+                                                <p><b>Kelas:</b>
+                                                    <?= $row['kelas'] ?>
+                                                    <?= $row['jurusan'] ?>
+                                                    <?= $row['subkelas'] ?>
+                                                </p>
+
+                                                <p><b>Alamat:</b>
+                                                    <?= $row['alamat'] ?? '-' ?>
+                                                </p>
+
+                                                <p><b>No HP:</b>
+                                                    <?= $row['no_hp'] ?? '-' ?>
+                                                </p>
+
+                                                <p><b>Guru BP:</b>
+                                                    <?= $row['nama_guru'] ?? 'Belum Ada' ?>
+                                                </p>
+
+                                                <p><b>Tanggal:</b>
+                                                    <?= date('d M Y H:i', strtotime($row['created_at'])) ?>
+                                                </p>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- MODAL EDIT -->
+                                <div class="modal fade"
+                                    id="edit<?= $row['id_siswa'] ?>"
+                                    tabindex="-1">
+
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+
+                                            <form action="proses_edit_siswa.php" method="POST">
+
+                                                <div class="modal-header">
+
+                                                    <h5 class="modal-title">
+                                                        Edit Siswa
+                                                    </h5>
+
+                                                    <button type="button"
+                                                        class="btn-close"
+                                                        data-bs-dismiss="modal">
+                                                    </button>
+
+                                                </div>
+
+                                                <div class="modal-body">
+
+                                                    <input type="hidden"
+                                                        name="id_siswa"
+                                                        value="<?= $row['id_siswa'] ?>">
+
+                                                    <div class="mb-3">
+                                                        <label>Nama</label>
+
+                                                        <input type="text"
+                                                            name="nama"
+                                                            class="form-control"
+                                                            value="<?= $row['nama'] ?>">
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label>Alamat</label>
+
+                                                        <textarea name="alamat"
+                                                            class="form-control"><?= $row['alamat'] ?></textarea>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <label>No HP</label>
+
+                                                        <input type="text"
+                                                            name="no_hp"
+                                                            class="form-control"
+                                                            value="<?= $row['no_hp'] ?>">
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="modal-footer">
+
+                                                    <button type="submit"
+                                                        class="btn btn-primary">
+
+                                                        Simpan
+                                                    </button>
+
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+                                    </div>
+                                </div>
                             <?php } ?>
                         </tbody>
                     </table>

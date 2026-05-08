@@ -9,6 +9,33 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'admin') {
 
 $nama_admin = $_SESSION['nama_guru'] ?? 'Admin';
 
+// HAPUS ADMIN
+if (isset($_GET['hapus'])) {
+
+    $id = $_GET['hapus'];
+
+    // CEGAH HAPUS DIRI SENDIRI
+    if ($id == $_SESSION['id_admin']) {
+
+        echo "
+        <script>
+            alert('Anda tidak bisa menghapus akun sendiri!');
+            window.location='Data_admin.php';
+        </script>
+        ";
+
+        exit;
+    }
+
+    mysqli_query($conn, "
+        DELETE FROM admin
+        WHERE id_admin='$id'
+    ");
+
+    header("Location: Data_admin.php");
+    exit;
+}
+
 // ambil data admin
 $data = mysqli_query($conn, "
     SELECT * FROM admin
@@ -180,7 +207,7 @@ $data = mysqli_query($conn, "
 
     <!-- content -->
     <div class="content">
-        <div class="topbar mb-4">
+        <div class="mb-4">
             <strong>Home</strong> / Data Admin
         </div>
         <div class="card shadow-sm">
@@ -226,6 +253,12 @@ $data = mysqli_query($conn, "
                                         data-kelas="<?= $row['kelas_akses'] ?>"
                                         data-nohp="<?= $row['no_hp'] ?>">
                                         <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="Data_admin.php?hapus=<?= $row['id_admin'] ?>"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Yakin ingin menghapus user ini?')">
+
+                                        <i class="bi bi-trash"></i>
                                     </a>
                                 </td>
 

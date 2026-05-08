@@ -60,7 +60,7 @@ if (isset($_POST['hapus_banyak'])) {
 }
 
 // PAGINATION
-$limit = 5;
+$limit = 10;
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 

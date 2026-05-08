@@ -8,7 +8,7 @@ if (!isset($_SESSION['login']) || $_SESSION['role'] != 'guru_bp') {
 
 include "koneksi.php";
 
-// AMBIL ID ADMIN (PENTING)
+// AMBIL ID ADMIN
 $id_admin = $_SESSION['id_admin'];
 
 // =======================
@@ -65,7 +65,7 @@ if (isset($_GET['hapus'])) {
 // =======================
 // FILTER DATA
 // =======================
-$limit = 5;
+$limit = 10;
 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
@@ -93,7 +93,7 @@ $data = mysqli_query(
     $conn,
     "SELECT * FROM kuisioner 
      $where 
-     ORDER BY jurusan ASC, id_soal ASC
+     ORDER BY jurusan ASC, id_soal DESC
      LIMIT $start, $limit"
 );
 
@@ -466,42 +466,41 @@ $username  = $_SESSION['username'] ?? '-';
 
                         </tbody>
                     </table>
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center flex-wrap">
-
-                            <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?= $page - 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
-                                        Previous
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-
-                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                    <a class="page-link"
-                                        href="?page=<?= $i ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
-                                        <?= $i ?>
-                                    </a>
-                                </li>
-
-                            <?php endfor; ?>
-
-                            <?php if ($page < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?= $page + 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
-                                        Next
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                        </ul>
-                    </nav>
                 </div>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center flex-wrap">
 
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page - 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                    Previous
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link"
+                                    href="?page=<?= $i ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page + 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                    Next
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

@@ -11,6 +11,22 @@ $id_admin = $_SESSION['id_admin'];
 $nama_guru = $_SESSION['nama_guru'] ?? 'Guru BP';
 $where = "WHERE siswa.id_admin='$id_admin'";
 
+// SEARCH
+if (isset($_GET['search']) && $_GET['search'] != '') {
+
+    $search = mysqli_real_escape_string(
+        $conn,
+        $_GET['search']
+    );
+
+    $where .= " AND (
+        siswa.nama LIKE '%$search%'
+        OR siswa.jurusan LIKE '%$search%'
+        OR karir.nama_karir LIKE '%$search%'
+        OR karir.kategori LIKE '%$search%'
+    )";
+}
+
 /* PAGINATION */
 $limit = 10;
 
@@ -315,42 +331,41 @@ $data = mysqli_query($conn, $query);
                             <?php } ?>
                         </tbody>
                     </table>
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center flex-wrap">
-
-                            <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?= $page - 1 ?>&search=<?= urlencode($_GET['search'] ?? '') ?>">
-                                        Previous
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-
-                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                    <a class="page-link"
-                                        href="?page=<?= $i ?>&search=<?= urlencode($_GET['search'] ?? '') ?>">
-                                        <?= $i ?>
-                                    </a>
-                                </li>
-
-                            <?php endfor; ?>
-
-                            <?php if ($page < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?= $page + 1 ?>&search=<?= urlencode($_GET['search'] ?? '') ?>">
-                                        Next
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                        </ul>
-                    </nav>
                 </div>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center flex-wrap">
 
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page - 1 ?>&search=<?= urlencode($_GET['search'] ?? '') ?>">
+                                    Previous
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link"
+                                    href="?page=<?= $i ?>&search=<?= urlencode($_GET['search'] ?? '') ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page + 1 ?>&search=<?= urlencode($_GET['search'] ?? '') ?>">
+                                    Next
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
             </div>
         </div>
 

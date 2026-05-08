@@ -513,41 +513,41 @@ $query = mysqli_query($conn, "
                             ?>
                         </tbody>
                     </table>
-                    <nav class="mt-3">
-                        <ul class="pagination justify-content-center flex-wrap">
-
-                            <?php if ($page > 1): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">
-                                        Previous
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-
-                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                    <a class="page-link"
-                                        href="?page=<?= $i ?>&search=<?= urlencode($search) ?>">
-                                        <?= $i ?>
-                                    </a>
-                                </li>
-
-                            <?php endfor; ?>
-
-                            <?php if ($page < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">
-                                        Next
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-
-                        </ul>
-                    </nav>
                 </div>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center flex-wrap">
+
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>">
+                                    Previous
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link"
+                                    href="?page=<?= $i ?>&search=<?= urlencode($search) ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>">
+                                    Next
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
@@ -655,7 +655,7 @@ $query = mysqli_query($conn, "
 
                         <div class="text-center">
 
-                            <a href="template_karir.csv"
+                            <a href="asset/template_karir.csv"
                                 class="btn btn-outline-primary btn-sm">
 
                                 <i class="bi bi-download"></i>

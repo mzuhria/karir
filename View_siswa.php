@@ -39,6 +39,27 @@ if (isset($_GET['jurusan']) && $_GET['jurusan'] != '') {
     $where .= " AND siswa.jurusan='$jurusan'";
 }
 
+// PAGINATION
+$batas = 5;
+
+$halaman = isset($_GET['halaman']) ? (int)$_GET['halaman'] : 1;
+
+if ($halaman < 1) {
+    $halaman = 1;
+}
+
+$mulai = ($halaman - 1) * $batas;
+
+// TOTAL DATA
+$total_data = mysqli_num_rows(mysqli_query($conn, "
+SELECT siswa.id_siswa
+FROM siswa
+LEFT JOIN admin ON siswa.id_admin = admin.id_admin
+$where
+"));
+
+$total_halaman = ceil($total_data / $batas);
+
 // DATA SISWA (JOIN)
 $data = mysqli_query($conn, "
 SELECT 
@@ -65,6 +86,7 @@ LEFT JOIN admin ON siswa.id_admin = admin.id_admin
 $where
 
 ORDER BY siswa.id_siswa DESC
+LIMIT $mulai, $batas
 ");
 ?>
 <!DOCTYPE html>
@@ -72,6 +94,7 @@ ORDER BY siswa.id_siswa DESC
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Kepsek</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -80,7 +103,8 @@ ORDER BY siswa.id_siswa DESC
     <style>
         body {
             background: #f1f5f9;
-            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
         }
 
         /* SIDEBAR */
@@ -88,9 +112,13 @@ ORDER BY siswa.id_siswa DESC
             height: 100vh;
             width: 240px;
             position: fixed;
+            top: 0;
+            left: 0;
             background: linear-gradient(180deg, #1e293b, #0f172a);
             color: white;
             padding-top: 20px;
+            transition: all 0.3s ease;
+            z-index: 1050;
         }
 
         .sidebar h4 {
@@ -98,84 +126,77 @@ ORDER BY siswa.id_siswa DESC
             letter-spacing: 1px;
         }
 
-        /* HILANGKAN UNDERLINE */
         .sidebar a {
             color: #cbd5e1;
             padding: 12px 20px;
             display: block;
-            border-radius: 10px;
+            border-radius: 12px;
             margin: 6px 12px;
-            text-decoration: none !important;
-            /* ⬅️ ini penting */
-            transition: all 0.3s ease;
+            text-decoration: none;
+            transition: 0.2s;
         }
 
-        /* Hover */
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            transform: translateX(5px);
-        }
-
-        /* ACTIVE MENU */
+        .sidebar a:hover,
         .sidebar a.active {
             background: linear-gradient(135deg, #4f46e5, #22c55e);
-            color: white !important;
-            font-weight: 600;
-            border-radius: 10px;
+            color: white;
         }
 
         /* CONTENT */
         .content {
             margin-left: 240px;
-            padding: 30px;
-        }
-
-        /* NAVBAR */
-        .navbar {
-            margin-left: 240px;
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        /* CARD MODERN */
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            padding: 25px;
             transition: 0.3s;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
+        /* TOGGLE */
+        .toggle-btn {
+            display: none;
+            border: none;
+            background: none;
+            font-size: 28px;
         }
 
-        /* TEXT */
-        h3 {
-            font-weight: 600;
-        }
+        /* MOBILE */
+        @media (max-width:768px) {
 
-        /* ICON BOX */
-        .icon-box {
-            font-size: 26px;
-            padding: 12px;
-            border-radius: 12px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+            .sidebar {
+                left: -240px;
+            }
 
-        .bg-blue {
-            background: #3b82f6;
-        }
+            .sidebar.active {
+                left: 0;
+            }
 
-        .bg-green {
-            background: #22c55e;
-        }
+            .content {
+                margin-left: 0;
+                padding: 15px;
+            }
 
-        .bg-orange {
-            background: #f59e0b;
+            .topbar {
+                margin-left: 0;
+            }
+
+            .toggle-btn {
+                display: block;
+            }
+
+            .welcome-card {
+                padding: 20px;
+            }
+
+            .welcome-card h3 {
+                font-size: 22px;
+                line-height: 1.4;
+            }
+
+            .welcome-card p {
+                font-size: 15px;
+            }
+
+            .navbar strong {
+                font-size: 14px;
+            }
         }
     </style>
 
@@ -195,27 +216,51 @@ ORDER BY siswa.id_siswa DESC
     </div>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-light bg-white px-3 d-flex justify-content-end shadow-sm">
-        <div class="dropdown">
-            <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" data-bs-toggle="dropdown">
+    <nav class="navbar navbar-light bg-white px-3 d-flex justify-content-between topbar shadow-sm">
+
+        <!-- toggle -->
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- profile -->
+        <div class="dropdown ms-auto">
+
+            <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown">
+
                 <i class="bi bi-person-circle fs-4 me-2"></i>
-                <strong><?php echo $nama_kepsek; ?></strong>
+
+                <strong>
+                    <?php echo $nama_kepsek; ?>
+                </strong>
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end">
+
                 <li class="dropdown-item">
-                    <i class="bi bi-person"></i> <?php echo $nama_kepsek; ?>
+                    <i class="bi bi-person"></i>
+                    <?php echo $nama_kepsek; ?>
                 </li>
+
                 <li>
                     <hr class="dropdown-divider">
                 </li>
+
                 <li>
-                    <a class="dropdown-item logout text-danger" href="Logout_Admin.php">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                    <a class="dropdown-item text-danger"
+                        href="Logout_Admin.php">
+
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
                     </a>
                 </li>
+
             </ul>
+
         </div>
+
     </nav>
 
     <!-- CONTENT -->
@@ -301,7 +346,6 @@ ORDER BY siswa.id_siswa DESC
 
                         <?php $no = 1;
                         $modals = ""; ?>
-
                         <tbody>
                             <?php while ($row = mysqli_fetch_assoc($data)) { ?>
 
@@ -378,6 +422,48 @@ ORDER BY siswa.id_siswa DESC
 
                     </table>
                 </div>
+                <!-- PAGINATION -->
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center">
+
+                        <!-- PREV -->
+                        <?php if ($halaman > 1) { ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?halaman=<?= $halaman - 1 ?>&search=<?= $_GET['search'] ?? '' ?>&jurusan=<?= $_GET['jurusan'] ?? '' ?>">
+                                    Previous
+                                </a>
+                            </li>
+                        <?php } ?>
+
+                        <!-- ANGKA -->
+                        <?php for ($i = 1; $i <= $total_halaman; $i++) { ?>
+
+                            <li class="page-item <?= ($i == $halaman) ? 'active' : '' ?>">
+
+                                <a class="page-link"
+                                    href="?halaman=<?= $i ?>&search=<?= $_GET['search'] ?? '' ?>&jurusan=<?= $_GET['jurusan'] ?? '' ?>">
+
+                                    <?= $i ?>
+
+                                </a>
+
+                            </li>
+
+                        <?php } ?>
+
+                        <!-- NEXT -->
+                        <?php if ($halaman < $total_halaman) { ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?halaman=<?= $halaman + 1 ?>&search=<?= $_GET['search'] ?? '' ?>&jurusan=<?= $_GET['jurusan'] ?? '' ?>">
+                                    Next
+                                </a>
+                            </li>
+                        <?php } ?>
+
+                    </ul>
+                </nav>
             </div>
             <?= $modals ?>
         </div>
@@ -422,6 +508,26 @@ ORDER BY siswa.id_siswa DESC
                 document.body.style = '';
                 document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
             });
+        });
+    </script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector(".sidebar")
+                .classList.toggle("active");
+        }
+
+        // close sidebar ketika klik luar
+        document.addEventListener("click", function(event) {
+
+            const sidebar = document.querySelector(".sidebar");
+            const toggleBtn = document.querySelector(".toggle-btn");
+
+            if (
+                !sidebar.contains(event.target) &&
+                !toggleBtn.contains(event.target)
+            ) {
+                sidebar.classList.remove("active");
+            }
         });
     </script>
 </body>

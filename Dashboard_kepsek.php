@@ -50,25 +50,30 @@ $karir = mysqli_query($conn, "
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Kepsek</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
         body {
             background: #f1f5f9;
-            font-family: 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
         }
 
-        /* 🔹 SIDEBAR */
+        /* SIDEBAR */
         .sidebar {
             height: 100vh;
             width: 240px;
             position: fixed;
+            top: 0;
+            left: 0;
             background: linear-gradient(180deg, #1e293b, #0f172a);
             color: white;
             padding-top: 20px;
+            transition: all 0.3s ease;
+            z-index: 1050;
         }
 
         .sidebar h4 {
@@ -76,72 +81,67 @@ $karir = mysqli_query($conn, "
             letter-spacing: 1px;
         }
 
-        /* 🔥 HILANGKAN UNDERLINE */
         .sidebar a {
             color: #cbd5e1;
             padding: 12px 20px;
             display: block;
-            border-radius: 10px;
+            border-radius: 12px;
             margin: 6px 12px;
-            text-decoration: none !important;
-            /* ⬅️ ini penting */
-            transition: all 0.3s ease;
+            text-decoration: none;
+            transition: 0.2s;
         }
 
-        /* Hover */
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            transform: translateX(5px);
-        }
-
-        /* 🔥 ACTIVE MENU */
+        .sidebar a:hover,
         .sidebar a.active {
             background: linear-gradient(135deg, #4f46e5, #22c55e);
-            color: white !important;
-            font-weight: 600;
-            border-radius: 10px;
+            color: white;
         }
 
-        /* 🔹 CONTENT */
+        /* CONTENT */
         .content {
             margin-left: 240px;
-            padding: 30px;
-        }
-
-        /* 🔹 NAVBAR */
-        .navbar {
-            margin-left: 240px;
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        /* 🔹 CARD MODERN */
-        .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            padding: 25px;
             transition: 0.3s;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
+        /* TOGGLE */
+        .toggle-btn {
+            display: none;
+            border: none;
+            background: none;
+            font-size: 28px;
         }
 
-        /* 🔹 TEXT */
-        h3 {
-            font-weight: 600;
-        }
-
-        /* 🔹 ICON BOX */
-        .icon-box {
-            font-size: 26px;
-            padding: 12px;
-            border-radius: 12px;
+        /* WELCOME */
+        .welcome-card {
+            background: linear-gradient(135deg, #4f46e5, #22c55e);
             color: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-card h3 {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* CARD */
+        .stat-card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .icon-box {
+            width: 55px;
+            height: 55px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-size: 24px;
         }
 
         .bg-blue {
@@ -156,8 +156,48 @@ $karir = mysqli_query($conn, "
             background: #f59e0b;
         }
 
-    </style>
+        /* MOBILE */
+        @media (max-width:768px) {
 
+            .sidebar {
+                left: -240px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .topbar {
+                margin-left: 0;
+            }
+
+            .toggle-btn {
+                display: block;
+            }
+
+            .welcome-card {
+                padding: 20px;
+            }
+
+            .welcome-card h3 {
+                font-size: 22px;
+                line-height: 1.4;
+            }
+
+            .welcome-card p {
+                font-size: 15px;
+            }
+
+            .navbar strong {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -174,74 +214,126 @@ $karir = mysqli_query($conn, "
     </div>
 
     <!-- NAVBAR -->
-    <nav class="navbar navbar-light bg-white px-3 d-flex justify-content-end shadow-sm">
-        <div class="dropdown">
-            <a class="d-flex align-items-center text-decoration-none dropdown-toggle" href="#" data-bs-toggle="dropdown">
+    <nav class="navbar navbar-light bg-white px-3 d-flex justify-content-between topbar shadow-sm">
+
+        <!-- toggle -->
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <!-- profile -->
+        <div class="dropdown ms-auto">
+
+            <a class="d-flex align-items-center text-decoration-none dropdown-toggle"
+                href="#"
+                data-bs-toggle="dropdown">
+
                 <i class="bi bi-person-circle fs-4 me-2"></i>
-                <strong><?php echo $nama_kepsek; ?></strong>
+
+                <strong>
+                    <?php echo $nama_kepsek; ?>
+                </strong>
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end">
+
                 <li class="dropdown-item">
-                    <i class="bi bi-person"></i> <?php echo $nama_kepsek; ?>
+                    <i class="bi bi-person"></i>
+                    <?php echo $nama_kepsek; ?>
                 </li>
+
                 <li>
                     <hr class="dropdown-divider">
                 </li>
+
                 <li>
-                    <a class="dropdown-item logout text-danger" href="Logout_Admin.php">
-                        <i class="bi bi-box-arrow-right"></i> Logout
+                    <a class="dropdown-item text-danger"
+                        href="Logout_Admin.php">
+
+                        <i class="bi bi-box-arrow-right"></i>
+                        Logout
                     </a>
                 </li>
+
             </ul>
+
         </div>
+
     </nav>
 
     <!-- CONTENT -->
     <div class="content">
 
         <!-- HEADER -->
-        <div class="card p-4 mb-4" style="background: linear-gradient(135deg,#4f46e5,#22c55e); color:white;">
-            <h4>Halo, Bapak <?= $nama_kepsek ?> 👋</h4>
-            <p>Monitoring aktivitas siswa dan guru secara real-time</p>
+        <div class="welcome-card mb-4">
+
+            <h3>
+                Halo, <?= $nama_kepsek ?> 👋
+            </h3>
+
+            <p class="mb-0">
+                Monitoring aktivitas siswa dan guru secara real-time
+            </p>
+
         </div>
 
         <!-- STAT -->
         <div class="row g-3">
 
             <div class="col-md-4">
-                <div class="card p-3 d-flex justify-content-between flex-row">
-                    <div>
-                        <h6>Total Siswa</h6>
-                        <h3><?= $total_siswa ?></h3>
+                <div class="card stat-card p-3">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <small>Total Siswa</small>
+                            <h3><?= $total_siswa ?></h3>
+                        </div>
+
+                        <div class="icon-box bg-blue">
+                            <i class="bi bi-people"></i>
+                        </div>
+
                     </div>
-                    <div class="icon-box bg-blue">
-                        <i class="bi bi-people"></i>
-                    </div>
+
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card p-3 d-flex justify-content-between flex-row">
-                    <div>
-                        <h6>Guru BP</h6>
-                        <h3><?= $total_guru ?></h3>
+                <div class="card stat-card p-3">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <small>Guru BP</small>
+                            <h3><?= $total_guru ?></h3>
+                        </div>
+
+                        <div class="icon-box bg-green">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+
                     </div>
-                    <div class="icon-box bg-green">
-                        <i class="bi bi-person-badge"></i>
-                    </div>
+
                 </div>
             </div>
 
             <div class="col-md-4">
-                <div class="card p-3 d-flex justify-content-between flex-row align-items-center">
-                    <div>
-                        <h6>Total Tes</h6>
-                        <h3><?= $total_hasil ?></h3>
+                <div class="card stat-card p-3">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div>
+                            <small>Total Tes</small>
+                            <h3><?= $total_hasil ?></h3>
+                        </div>
+
+                        <div class="icon-box bg-orange">
+                            <i class="bi bi-clipboard-check"></i>
+                        </div>
+
                     </div>
-                    <div class="icon-box bg-orange">
-                        <i class="bi bi-clipboard-check"></i>
-                    </div>
+
                 </div>
             </div>
 
@@ -292,6 +384,26 @@ $karir = mysqli_query($conn, "
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector(".sidebar")
+                .classList.toggle("active");
+        }
+
+        // close sidebar ketika klik luar
+        document.addEventListener("click", function(event) {
+
+            const sidebar = document.querySelector(".sidebar");
+            const toggleBtn = document.querySelector(".toggle-btn");
+
+            if (
+                !sidebar.contains(event.target) &&
+                !toggleBtn.contains(event.target)
+            ) {
+                sidebar.classList.remove("active");
+            }
+        });
+    </script>
 </body>
 
 </html>

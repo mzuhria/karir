@@ -27,7 +27,7 @@ if ($data) {
             // simpan ke session
             $_SESSION['no_hp_guru'] = $data_guru['no_hp'] ?? null;
 
-            header("Location: login_siswa.php?error=belum_aktif");
+            header("Location: Login_Siswa.php?error=belum_aktif");
             exit;
         }
 
@@ -45,10 +45,10 @@ if ($data) {
         header("Location: Dashboard_Siswa.php");
         exit;
     } else {
-        header("Location: login_siswa.php?error=password");
+        header("Location: Login_Siswa.php?error=password");
         exit;
     }
 } else {
-    header("Location: login_siswa.php?error=username");
+    header("Location: Login_Siswa.php?error=username");
     exit;
 }

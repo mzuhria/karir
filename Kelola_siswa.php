@@ -153,6 +153,32 @@ if (!empty($search)) {
     )";
 }
 
+// ================= PAGINATION =================
+
+// halaman aktif
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+if ($page < 1) {
+    $page = 1;
+}
+
+$limit = 10; // jumlah data per halaman
+$start = ($page - 1) * $limit;
+
+
+// HITUNG TOTAL DATA
+$count_query = mysqli_query($conn, "
+SELECT COUNT(*) as total
+FROM siswa
+WHERE id_admin='$id_admin'
+");
+
+$count_data = mysqli_fetch_assoc($count_query);
+
+$total_data = $count_data['total'];
+
+$total_pages = ceil($total_data / $limit);
+
 $query = mysqli_query($conn, "
 SELECT 
     id_siswa,
@@ -167,6 +193,7 @@ SELECT
 FROM siswa
 $where
 ORDER BY created_at ASC
+LIMIT $start, $limit
 ");
 
 if (!$query) {
@@ -425,7 +452,7 @@ if (!$query) {
 
                         <tbody>
                             <?php
-                            $no = 1;
+                            $no = $start + 1;
 
                             if (mysqli_num_rows($query) > 0) {
                                 while ($row = mysqli_fetch_assoc($query)) {
@@ -511,6 +538,40 @@ if (!$query) {
 
                     </table>
                 </div>
+                <nav class="mt-3">
+                    <ul class="pagination justify-content-center flex-wrap">
+
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page - 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                    Previous
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+
+                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                <a class="page-link"
+                                    href="?page=<?= $i ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+
+                        <?php endfor; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?= $page + 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
+                                    Next
+                                </a>
+                            </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>

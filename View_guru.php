@@ -236,87 +236,15 @@ $data = mysqli_query($conn, "
                                         <td><?= $row['username'] ?></td>
                                         <td><?= $row['no_hp'] ?></td>
                                         <td>
-                                            <button class="btn btn-info btn-sm"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#detail<?= $row['id_admin'] ?>">
+                                            <a href="Detail_guru_kepsek.php?id=<?= $row['id_admin'] ?>"
+                                                class="btn btn-info btn-sm">
+
+                                                <i class="bi bi-eye"></i>
                                                 Detail
-                                            </button>
+
+                                            </a>
                                         </td>
                                     </tr>
-
-                                    <?php
-                                    // 🔥 MODAL DETAIL + SISWA
-                                    $modals .= '
-<div class="modal fade" id="detail' . $row['id_admin'] . '" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-
-            <div class="modal-header">
-                <h5 class="modal-title">Detail Guru</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-                <p><b>Nama:</b> ' . $row['nama_guru'] . '</p>
-                <p><b>Username:</b> ' . $row['username'] . '</p>
-                <p><b>No HP:</b> ' . $row['no_hp'] . '</p>
-                <p><b>Jumlah Siswa:</b> ' . $row['jumlah_siswa'] . '</p>
-                <p><b>Jumlah Soal Dibuat:</b> ' . $row['jumlah_soal'] . '</p>
-
-                <hr>
-
-                <h6>📋 Daftar Siswa Bimbingan</h6>
-
-                <table class="table table-sm table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Siswa</th>
-                            <th>Kelas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-';
-
-                                    // 🔹 LOOP SISWA
-                                    $no_siswa = 1;
-                                    $ada = false;
-
-                                    while ($s = mysqli_fetch_assoc($siswa)) {
-                                        $ada = true;
-                                        $modals .= '
-        <tr>
-            <td>' . $no_siswa++ . '</td>
-            <td>' . $s['nama'] . '</td>
-            <td>' . $s['kelas'] . ' ' . $s['jurusan'] . ' ' . $s['subkelas'] . '</td>
-        </tr>';
-                                    }
-
-                                    // 🔹 Kalau kosong
-                                    if (!$ada) {
-                                        $modals .= '
-        <tr>
-            <td colspan="3" class="text-center text-muted">
-                Belum ada siswa
-            </td>
-        </tr>';
-                                    }
-
-                                    // 🔹 PENUTUP
-                                    $modals .= '
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-
-        </div>
-    </div>
-</div>';
-                                    ?>
-
                                 <?php } ?>
                             </tbody>
 
@@ -324,13 +252,7 @@ $data = mysqli_query($conn, "
                     </div>
                 </div>
             </div>
-
-            <!-- 🔥 MODAL OUTPUT -->
-            <?= $modals ?>
-
         </div>
-
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

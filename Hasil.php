@@ -28,8 +28,8 @@ $kelas_full = $kelas . " " . $jurusan_db . " " . $subkelas;
 $jurusan = $map_jurusan[$jurusan_db] ?? $jurusan_db;
 $rekomendasi = $_SESSION['rekomendasi'] ?? [];
 $tanggal = $_GET['tanggal'] ?? null;
-$tanggal_tampil = $tanggal 
-    ? date('d F Y', strtotime($tanggal)) 
+$tanggal_tampil = $tanggal
+    ? date('d F Y', strtotime($tanggal))
     : date('d F Y');
 
 if ($tanggal) {
@@ -64,6 +64,42 @@ $top1 = $rekomendasi[0]['nama'] ?? '-';
 $top2 = $rekomendasi[1]['nama'] ?? '-';
 $top3 = $rekomendasi[2]['nama'] ?? '-';
 
+// AMBIL DATA GURU BK
+$q_guru = mysqli_query($conn, "
+SELECT nama_guru,no_hp
+FROM admin
+WHERE id_admin='" . $siswa['id_admin'] . "'
+LIMIT 1
+");
+
+$guru = mysqli_fetch_assoc($q_guru);
+
+$nama_guru_bk = $guru['nama_guru'] ?? 'Guru BK';
+
+// FORMAT NOMOR WA
+$nomor_wa = preg_replace('/[^0-9]/', '', $guru['no_hp']);
+
+if (substr($nomor_wa, 0, 1) == '0') {
+    $nomor_wa = '62' . substr($nomor_wa, 1);
+}
+
+// PESAN WA
+$pesan = rawurlencode(
+    "Halo " . $nama_guru_bk . ",
+
+Saya ingin konsultasi hasil analisis karir.
+
+Nama : " . $nama . "
+Kelas : " . $kelas_full . "
+Jurusan : " . $jurusan . "
+
+Rekomendasi:
+1. " . $top1 . "
+2. " . $top2 . "
+3. " . $top3
+);
+
+$link_wa = "https://wa.me/" . $nomor_wa . "?text=" . $pesan;
 ?>
 
 <!DOCTYPE html>
@@ -380,10 +416,19 @@ $top3 = $rekomendasi[2]['nama'] ?? '-';
                 </a>
 
                 <div>
+                    <a href="<?= $link_wa ?>"
+                        target="_blank"
+                        class="btn btn-konsultasi">
 
-                    <!-- Cetak PDF -->
-                    <a href="Cetak_PDF.php" class="btn btn-success">
-                        <i class="bi bi-printer"></i> Cetak PDF
+                        <i class="bi bi-whatsapp"></i>
+                        Konsultasi
+                    </a>
+
+                    <a href="Cetak_PDF.php"
+                        class="btn btn-success">
+
+                        <i class="bi bi-printer"></i>
+                        Cetak PDF
                     </a>
                 </div>
 

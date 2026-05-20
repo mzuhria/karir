@@ -367,56 +367,15 @@ LIMIT $mulai, $batas
                                     <td><?= $row['nama_karir'] ?? 'Belum Ada' ?></td>
 
                                     <td>
-                                        <button class="btn btn-info btn-sm"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#detail<?= $row['id_siswa'] ?>">
+                                        <a href="Detail_siswa_kepsek.php?id=<?= $row['id_siswa'] ?>"
+                                            class="btn btn-info btn-sm">
+
+                                            <i class="bi bi-eye"></i>
                                             Detail
-                                        </button>
+
+                                        </a>
                                     </td>
                                 </tr>
-
-                                <?php
-                                // 🔥 ambil jumlah jawaban
-                                $id = $row['id_siswa'];
-                                $jawaban = mysqli_fetch_assoc(mysqli_query(
-                                    $conn,
-                                    "SELECT COUNT(*) as total FROM jawaban WHERE id_siswa='$id'"
-                                ))['total'];
-
-                                // 🔥 simpan modal (DI LUAR TABLE)
-                                $modals .= '
-<div class="modal fade" id="detail' . $row['id_siswa'] . '" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title">Detail Siswa</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <p><b>Nama:</b> ' . $row['nama'] . '</p>
-        <p><b>Kelas:</b> ' . $row['kelas'] . '</p>
-        <p><b>Jurusan:</b> ' . $row['jurusan'] . '</p>
-        <p><b>Subkelas:</b> ' . $row['subkelas'] . '</p>
-        <p><b>Email:</b> ' . $row['email'] . '</p>
-        <p><b>Status:</b> ' . $row['status'] . '</p>
-        <p><b>Guru BP:</b> ' . ($row['nama_guru'] ?? 'Belum ada') . '</p>
-        <p><b>Skor:</b> ' . ($row['skor'] ?? '-') . '</p>
-        <p><b>Rekomendasi:</b> ' . ($row['nama_karir'] ?? 'Belum Ada') . '</p>
-        <p><b>Jumlah Jawaban:</b> ' . $jawaban . '</p>
-      </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-      </div>
-
-    </div>
-  </div>
-</div>
-';
-                                ?>
-
                             <?php } ?>
                         </tbody>
 
@@ -465,7 +424,6 @@ LIMIT $mulai, $batas
                     </ul>
                 </nav>
             </div>
-            <?= $modals ?>
         </div>
     </div>
 

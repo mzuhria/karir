@@ -473,8 +473,41 @@ $query = mysqli_query($conn, "
 
                                                         <div class="mb-3">
                                                             <label>Kategori</label>
-                                                            <input type="text" name="kategori" class="form-control"
-                                                                value="<?= $row['kategori']; ?>" required>
+
+                                                            <select name="kategori" class="form-control" required>
+
+                                                                <option value="Realistic"
+                                                                    <?= ($row['kategori'] == "Realistic") ? 'selected' : '' ?>>
+                                                                    Realistic
+                                                                </option>
+
+                                                                <option value="Investigative"
+                                                                    <?= ($row['kategori'] == "Investigative") ? 'selected' : '' ?>>
+                                                                    Investigative
+                                                                </option>
+
+                                                                <option value="Artistic"
+                                                                    <?= ($row['kategori'] == "Artistic") ? 'selected' : '' ?>>
+                                                                    Artistic
+                                                                </option>
+
+                                                                <option value="Social"
+                                                                    <?= ($row['kategori'] == "Social") ? 'selected' : '' ?>>
+                                                                    Social
+                                                                </option>
+
+                                                                <option value="Enterprising"
+                                                                    <?= ($row['kategori'] == "Enterprising") ? 'selected' : '' ?>>
+                                                                    Enterprising
+                                                                </option>
+
+                                                                <option value="Conventional"
+                                                                    <?= ($row['kategori'] == "Conventional") ? 'selected' : '' ?>>
+                                                                    Conventional
+                                                                </option>
+
+                                                            </select>
+
                                                         </div>
 
                                                         <div class="mb-3">

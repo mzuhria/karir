@@ -11,69 +11,11 @@ include "koneksi.php";
 // AMBIL ID ADMIN
 $id_admin = $_SESSION['id_admin'];
 
-// =======================
-// TAMBAH SOAL
-// =======================
-if (isset($_POST['tambah'])) {
-    $pertanyaan = $_POST['pertanyaan'];
-    $kategori   = $_POST['kategori'];
-    $jurusan    = $_POST['jurusan'];
-
-    mysqli_query($conn, "INSERT INTO kuisioner 
-        (pertanyaan, jurusan, kategori, id_admin) 
-        VALUES 
-        ('$pertanyaan','$jurusan','$kategori','$id_admin')");
-
-    header("Location: Kelola_soal.php");
-    exit;
-}
-
-// =======================
-// UPDATE SOAL
-// =======================
-if (isset($_POST['update'])) {
-
-    $id         = $_POST['id_soal'];
-    $pertanyaan = $_POST['pertanyaan'];
-    $kategori   = $_POST['kategori'];
-    $jurusan    = $_POST['jurusan'];
-
-    mysqli_query($conn, "UPDATE kuisioner SET
-        pertanyaan='$pertanyaan',
-        kategori='$kategori',
-        jurusan='$jurusan'
-        WHERE id_soal='$id' AND id_admin='$id_admin'
-    ");
-
-    header("Location: Kelola_soal.php");
-    exit;
-}
-
-// =======================
-// HAPUS SOAL
-// =======================
-if (isset($_GET['hapus'])) {
-    $id = $_GET['hapus'];
-
-    mysqli_query($conn, "DELETE FROM kuisioner 
-        WHERE id_soal='$id' AND id_admin='$id_admin'");
-
-    header("Location: Kelola_soal.php");
-    exit;
-}
 
 // =======================
 // FILTER DATA
 // =======================
-$limit = 10;
-
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
-if ($page < 1) $page = 1;
-
-$start = ($page - 1) * $limit;
-
-$no = $start + 1;
+$no = 1;
 
 $where = "WHERE id_admin='$id_admin'";
 
@@ -82,19 +24,13 @@ if (!empty($_GET['filter_jurusan'])) {
     $where .= " AND jurusan='$filter'";
 }
 
-$total_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM kuisioner $where");
-$total_data = mysqli_fetch_assoc($total_query)['total'];
-
-$total_pages = ceil($total_data / $limit);
 // =======================
 // QUERY DATA
 // =======================
 $data = mysqli_query(
     $conn,
     "SELECT * FROM kuisioner 
-     $where 
-     ORDER BY jurusan ASC, id_soal DESC
-     LIMIT $start, $limit"
+     $where "
 );
 
 $nama_guru = $_SESSION['nama_guru'] ?? 'Guru BP';
@@ -300,9 +236,9 @@ $username  = $_SESSION['username'] ?? '-';
         </div>
 
         <a href="Dashboard_gurubp.php"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-        <a href="Kelola_siswa.php"><i class="bi bi-people me-2"></i>Kelola Siswa</a>
         <a href="Kelola_soal.php" class="bg-secondary text-white"><i class="bi bi-ui-checks me-2"></i>Kelola Soal</a>
         <a href="Kelola_karir.php"><i class="bi bi-briefcase me-2"></i>Kelola Karir</a>
+        <a href="Kelola_siswa.php"><i class="bi bi-people me-2"></i>Kelola Akun Siswa</a>
         <a href="Riwayat.php"><i class="bi bi-clock-history me-2"></i>Riwayat</a>
         <hr>
         <a href="Logout_Admin.php" class="text-danger">
@@ -355,152 +291,146 @@ $username  = $_SESSION['username'] ?? '-';
                             data-bs-target="#modalTambah">
                             <i class="bi bi-plus"></i> Tambah Soal
                         </button>
+
+                        <button class="btn btn-danger btn-sm"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalRandom">
+                            <i class="bi bi-shuffle"></i> Random Soal
+                        </button>
                     </div>
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No</th>
-                                <th>Pertanyaan</th>
-                                <th>Kategori</th>
-                                <th>Jurusan</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <form action="Process_publikasi_soal.php" method="POST">
+                        <input type="hidden" name="metode" value="manual">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Pertanyaan</th>
+                                    <th>Kategori</th>
+                                    <th>Jurusan</th>
+                                    <th>Aksi</th>
+                                    <th>
+                                        <input type="checkbox" id="checkAll">
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                            <?php if (mysqli_num_rows($data) > 0) {
-                                while ($row = mysqli_fetch_assoc($data)) { ?>
+                                <?php if (mysqli_num_rows($data) > 0) {
+                                    while ($row = mysqli_fetch_assoc($data)) { ?>
 
-                                    <tr>
-                                        <td><?= $no++; ?></td>
-                                        <td><?= htmlspecialchars($row['pertanyaan']); ?></td>
-                                        <td><span class="badge bg-primary"><?= $row['kategori']; ?></span></td>
-                                        <td><span class="badge bg-info text-dark"><?= $row['jurusan']; ?></span></td>
-                                        <td>
-                                            <button class="btn btn-warning btn-sm"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#edit<?= $row['id_soal']; ?>">
-                                                Edit
-                                            </button>
+                                        <tr>
+                                            <td><?= $no++; ?></td>
+                                            <td><?= htmlspecialchars($row['pertanyaan']); ?></td>
+                                            <td><span class="badge bg-primary"><?= $row['kategori']; ?></span></td>
+                                            <td><span class="badge bg-info text-dark"><?= $row['jurusan']; ?></span></td>
+                                            <td>
+                                                <button type="button"
+                                                    class="btn btn-warning btn-sm"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#edit<?= $row['id_soal']; ?>">
+                                                    Edit
+                                                </button>
 
-                                            <a href="?hapus=<?= $row['id_soal']; ?>"
-                                                class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Yakin ingin hapus?')">
-                                                Hapus
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <!-- MODAL EDIT -->
-                                    <div class="modal fade" id="edit<?= $row['id_soal']; ?>">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
+                                                <a href="Process_soal.php?hapus=<?= $row['id_soal']; ?>"
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Yakin ingin hapus?')">
+                                                    Hapus
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <input type="checkbox"
+                                                    name="soal[]"
+                                                    value="<?= $row['id_soal']; ?>"
+                                                    <?= ($row['status_publikasi'] == 1) ? 'checked' : ''; ?>>
+                                            </td>
+                                        </tr>
 
-                                                <form method="POST">
+                                        <!-- MODAL EDIT -->
+                                        <div class="modal fade" id="edit<?= $row['id_soal']; ?>">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
 
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Edit Soal</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                    </div>
+                                                    <form method="POST" action="Process_soal.php">
 
-                                                    <div class="modal-body">
-
-                                                        <input type="hidden" name="id_soal" value="<?= $row['id_soal']; ?>">
-
-                                                        <!-- PERTANYAAN -->
-                                                        <div class="mb-3">
-                                                            <label>Pertanyaan</label>
-                                                            <textarea name="pertanyaan" class="form-control" required><?= htmlspecialchars($row['pertanyaan']); ?></textarea>
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Soal</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         </div>
 
-                                                        <!-- JURUSAN -->
-                                                        <div class="mb-3">
-                                                            <label>Jurusan</label>
-                                                            <select name="jurusan" class="form-control" required>
-                                                                <option value="TKJ" <?= $row['jurusan'] == "TKJ" ? 'selected' : '' ?>>TKJ</option>
-                                                                <option value="TKR" <?= $row['jurusan'] == "TKR" ? 'selected' : '' ?>>TKR</option>
-                                                                <option value="TPM" <?= $row['jurusan'] == "TPM" ? 'selected' : '' ?>>TPM</option>
-                                                                <option value="DKV" <?= $row['jurusan'] == "DKV" ? 'selected' : '' ?>>DKV</option>
-                                                            </select>
+                                                        <div class="modal-body">
+
+                                                            <input type="hidden" name="id_soal" value="<?= $row['id_soal']; ?>">
+
+                                                            <!-- PERTANYAAN -->
+                                                            <div class="mb-3">
+                                                                <label>Pertanyaan</label>
+                                                                <textarea name="pertanyaan" class="form-control" required><?= htmlspecialchars($row['pertanyaan']); ?></textarea>
+                                                            </div>
+
+                                                            <!-- JURUSAN -->
+                                                            <div class="mb-3">
+                                                                <label>Jurusan</label>
+                                                                <select name="jurusan" class="form-control" required>
+                                                                    <option value="TKJ" <?= $row['jurusan'] == "TKJ" ? 'selected' : '' ?>>TKJ</option>
+                                                                    <option value="TKR" <?= $row['jurusan'] == "TKR" ? 'selected' : '' ?>>TKR</option>
+                                                                    <option value="TPM" <?= $row['jurusan'] == "TPM" ? 'selected' : '' ?>>TPM</option>
+                                                                    <option value="DKV" <?= $row['jurusan'] == "DKV" ? 'selected' : '' ?>>DKV</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <!-- KATEGORI RIASEC -->
+                                                            <div class="mb-3">
+                                                                <label>Kategori (RIASEC)</label>
+                                                                <select name="kategori" class="form-control" required>
+
+                                                                    <option value="Realistic" <?= $row['kategori'] == "Realistic" ? 'selected' : '' ?>>Realistic</option>
+                                                                    <option value="Investigative" <?= $row['kategori'] == "Investigative" ? 'selected' : '' ?>>Investigative</option>
+                                                                    <option value="Artistic" <?= $row['kategori'] == "Artistic" ? 'selected' : '' ?>>Artistic</option>
+                                                                    <option value="Social" <?= $row['kategori'] == "Social" ? 'selected' : '' ?>>Social</option>
+                                                                    <option value="Enterprising" <?= $row['kategori'] == "Enterprising" ? 'selected' : '' ?>>Enterprising</option>
+                                                                    <option value="Conventional" <?= $row['kategori'] == "Conventional" ? 'selected' : '' ?>>Conventional</option>
+
+                                                                </select>
+                                                            </div>
+
                                                         </div>
 
-                                                        <!-- KATEGORI RIASEC -->
-                                                        <div class="mb-3">
-                                                            <label>Kategori (RIASEC)</label>
-                                                            <select name="kategori" class="form-control" required>
+                                                        <div class="modal-footer">
+                                                            <button type="submit"
+                                                                name="update"
+                                                                formaction="Process_soal.php"
+                                                                class="btn btn-success">
+                                                                Update
+                                                            </button>
 
-                                                                <option value="Realistic" <?= $row['kategori'] == "Realistic" ? 'selected' : '' ?>>Realistic</option>
-                                                                <option value="Investigative" <?= $row['kategori'] == "Investigative" ? 'selected' : '' ?>>Investigative</option>
-                                                                <option value="Artistic" <?= $row['kategori'] == "Artistic" ? 'selected' : '' ?>>Artistic</option>
-                                                                <option value="Social" <?= $row['kategori'] == "Social" ? 'selected' : '' ?>>Social</option>
-                                                                <option value="Enterprising" <?= $row['kategori'] == "Enterprising" ? 'selected' : '' ?>>Enterprising</option>
-                                                                <option value="Conventional" <?= $row['kategori'] == "Conventional" ? 'selected' : '' ?>>Conventional</option>
-
-                                                            </select>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                                Batal
+                                                            </button>
                                                         </div>
 
-                                                    </div>
+                                                    </form>
 
-                                                    <div class="modal-footer">
-                                                        <button type="submit" name="update" class="btn btn-success">
-                                                            <i class="bi bi-check-circle"></i> Update
-                                                        </button>
-
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                            Batal
-                                                        </button>
-                                                    </div>
-
-                                                </form>
-
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                <?php }
+                                } else {
+                                    echo "<tr><td colspan='5' class='text-center'>Belum ada soal</td></tr>";
+                                } ?>
 
-                            <?php }
-                            } else {
-                                echo "<tr><td colspan='5' class='text-center'>Belum ada soal</td></tr>";
-                            } ?>
-
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-megaphone-fill"></i>
+                                Publikasi Soal
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <nav class="mt-3">
-                    <ul class="pagination justify-content-center flex-wrap">
-
-                        <?php if ($page > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link"
-                                    href="?page=<?= $page - 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
-                                    Previous
-                                </a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-
-                            <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
-                                <a class="page-link"
-                                    href="?page=<?= $i ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
-                                    <?= $i ?>
-                                </a>
-                            </li>
-
-                        <?php endfor; ?>
-
-                        <?php if ($page < $total_pages): ?>
-                            <li class="page-item">
-                                <a class="page-link"
-                                    href="?page=<?= $page + 1 ?>&filter_jurusan=<?= $_GET['filter_jurusan'] ?? '' ?>">
-                                    Next
-                                </a>
-                            </li>
-                        <?php endif; ?>
-
-                    </ul>
-                </nav>
             </div>
         </div>
     </div>
@@ -509,7 +439,7 @@ $username  = $_SESSION['username'] ?? '-';
     <div class="modal fade" id="modalTambah">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="POST">
+                <form method="POST" action="Process_soal.php">
                     <div class="modal-header">
                         <h5 class="modal-title">Tambah Soal</h5> <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
@@ -541,6 +471,102 @@ $username  = $_SESSION['username'] ?? '-';
         </div>
     </div>
 
+    <!-- MODAL Random -->
+    <div class="modal fade" id="modalRandom">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <form action="Process_publikasi_soal.php" method="POST">
+                    <input type="hidden" name="metode" value="random">
+
+                    <div class="modal-header">
+
+                        <h5 class="modal-title">
+                            Random Soal RIASEC
+                        </h5>
+
+                        <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
+
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+
+                            <label>Jurusan</label>
+
+                            <select name="jurusan"
+                                class="form-control"
+                                required>
+
+                                <option value="">Pilih Jurusan</option>
+                                <option value="TKR">TKR</option>
+                                <option value="TKJ">TKJ</option>
+                                <option value="TPM">TPM</option>
+                                <option value="DKV">DKV</option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label>Jumlah Soal</label>
+
+                            <input type="number"
+                                name="jumlah_soal"
+                                class="form-control"
+                                min="6"
+                                max="30"
+                                required
+                                placeholder="Masukkan jumlah soal">
+
+                        </div>
+
+                        <div class="alert alert-info mb-0">
+
+                            Sistem akan membagi soal secara merata ke kategori:
+
+                            <strong>
+                                R, I, A, S, E, C
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                            Batal
+
+                        </button>
+
+                        <button type="submit"
+                            class="btn btn-success">
+
+                            <i class="bi bi-shuffle"></i>
+                            Generate
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const toggleBtn = document.getElementById("toggleSidebar");
@@ -566,6 +592,20 @@ $username  = $_SESSION['username'] ?? '-';
                 }
             });
         });
+    </script>
+    <script>
+        document.getElementById('checkAll')
+            .addEventListener('change', function() {
+
+                document
+                    .querySelectorAll('input[name="soal[]"]')
+                    .forEach(cb => {
+
+                        cb.checked = this.checked;
+
+                    });
+
+            });
     </script>
 </body>
 

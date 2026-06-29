@@ -16,13 +16,6 @@ $querySiswa = mysqli_query($conn, "
 $dataSiswa = mysqli_fetch_assoc($querySiswa);
 
 $jurusan = $dataSiswa['jurusan'];
-
-if (!isset($_SESSION['jurusan'])) {
-    header("Location: Kuisioner.php");
-    exit();
-}
-
-$jurusan = $_SESSION['jurusan'];
 ?>
 
 <!DOCTYPE html>
@@ -148,7 +141,15 @@ $jurusan = $_SESSION['jurusan'];
                 <?php
                 $no = 1;
 
-                $query = mysqli_query($conn, "SELECT * FROM kuisioner WHERE jurusan='$jurusan'");
+                $query = mysqli_query($conn, "SELECT * FROM kuisioner WHERE jurusan='$jurusan' AND status_publikasi='1'");
+
+                if (mysqli_num_rows($query) == 0) {
+                    echo "
+                        <div class='alert alert-warning'>
+                            Kuisioner belum tersedia. Silakan hubungi Guru BK.
+                        </div>";
+                    exit;
+                }
 
                 while ($row = mysqli_fetch_assoc($query)) {
                 ?>

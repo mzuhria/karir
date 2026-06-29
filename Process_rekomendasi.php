@@ -11,7 +11,7 @@ $id_siswa = $_SESSION['id_siswa'];
 
 
 // ==============================
-// 1. AMBIL JURUSAN
+// 1. AMBIL DATA SISWA
 // ==============================
 $data = mysqli_query($conn, "SELECT jurusan FROM siswa WHERE id_siswa='$id_siswa'");
 $siswa = mysqli_fetch_assoc($data);
@@ -19,7 +19,7 @@ $jurusan = $siswa['jurusan'] ?? '';
 
 
 // ==============================
-// 2. STOPWORD
+// 2. PREPROCESSING TEXT
 // ==============================
 $stopwords = ['saya', 'dan', 'yang', 'dengan', 'di', 'ke', 'dari', 'untuk', 'pada', 'dalam'];
 
@@ -41,7 +41,7 @@ function clean_text($text, $stopwords)
 
 
 // ==============================
-// 3. HITUNG RIASEC (FILTER)
+// 3. HITUNG SKOR RIASEC
 // ==============================
 $riasec = [];
 
@@ -60,6 +60,52 @@ while ($row = mysqli_fetch_assoc($q)) {
     $riasec[$row['kategori']] = $row['total'];
 }
 
+/*echo "<h2>Hasil Perhitungan Skor RIASEC</h2>";
+
+echo "<table border='1' cellpadding='8'>
+<tr>
+<th>Kategori</th>
+<th>Total Skor</th>
+</tr>";
+
+foreach ($riasec as $kategori => $total) {
+
+    echo "<tr>
+            <td>$kategori</td>
+            <td>$total</td>
+          </tr>";
+}
+
+echo "</table>";
+
+echo "<br><h3>Top 3 Profil Minat Siswa</h3>";
+
+$top = array_keys($riasec);
+
+echo "
+<table border='1' cellpadding='8'>
+<tr>
+<th>Ranking</th>
+<th>Kategori</th>
+</tr>
+";
+
+for ($i=0; $i<3; $i++) {
+
+    echo "<tr>
+            <td>".($i+1)."</td>
+            <td>".$top[$i]."</td>
+          </tr>";
+}
+
+echo "</table>";
+
+exit;*/
+
+// ==============================
+// 4. TENTUKAN TOP 3 RIASEC
+// ==============================
+
 // urutkan dari terbesar
 arsort($riasec);
 
@@ -72,16 +118,7 @@ $tipe3 = $keys[2] ?? '';
 
 
 // ==============================
-// 3.1 BOBOT RIASEC (PENTING 🔥)
-// ==============================
-$bobot = [
-    $tipe1 => 1.0,   // paling dominan
-    $tipe2 => 0.8,   // kedua
-    $tipe3 => 0.6    // ketiga
-];
-
-// ==============================
-// 4. PROFIL TEXT USER
+// 5. BENTUK PROFIL MINAT SISWA
 // ==============================
 $profil_text = "";
 
@@ -90,25 +127,18 @@ SELECT k.pertanyaan, j.nilai
 FROM jawaban j
 JOIN kuisioner k ON j.id_soal = k.id_soal
 WHERE j.id_siswa='$id_siswa'
+AND k.kategori IN ('$tipe1','$tipe2','$tipe3')
 ");
 
 while ($row = mysqli_fetch_assoc($query)) {
 
     $text = clean_text($row['pertanyaan'], $stopwords);
-    $nilai = $row['nilai'];
 
-    for ($i = 0; $i < $nilai; $i++) {
-        $profil_text .= " " . $text;
-    }
+    $profil_text .= " ".$text;
 }
-
-if (trim($profil_text) == "") {
-    $profil_text = "umum";
-}
-
 
 // ==============================
-// 5. AMBIL KARIR (FILTER RIASEC)
+// 7. AMBIL DATA KARIR
 // ==============================
 $documents = [];
 $karir_data = [];
@@ -116,15 +146,19 @@ $karir_data = [];
 $documents[] = $profil_text;
 
 $q = mysqli_query($conn, "
-SELECT * FROM karir 
+SELECT *
+FROM karir
 WHERE jurusan='$jurusan'
-AND kategori IN ('$tipe1','$tipe2','$tipe3')
 ");
 
+
+
 while ($row = mysqli_fetch_assoc($q)) {
-    $text = clean_text($row['deskripsi'] . " " . $row['nama_karir'], $stopwords);
+
+    $text = clean_text($row['deskripsi'], $stopwords);
 
     $documents[] = $text;
+
     $karir_data[] = [
         'data' => $row,
         'text' => $text
@@ -133,7 +167,7 @@ while ($row = mysqli_fetch_assoc($q)) {
 
 
 // ==============================
-// 6. HITUNG IDF
+// 8. FUNGSI PERHITUNGAN IDF
 // ==============================
 function compute_idf($documents)
 {
@@ -160,7 +194,7 @@ function compute_idf($documents)
 
 
 // ==============================
-// 7. TF-IDF
+// 9. FUNGSI PERHITUNGAN TF-IDF
 // ==============================
 function tfidf_vector($text, $idf)
 {
@@ -184,7 +218,7 @@ function tfidf_vector($text, $idf)
 
 
 // ==============================
-// 8. COSINE
+// 10. FUNGSI COSINE SIMILARITY
 // ==============================
 function cosine($v1, $v2)
 {
@@ -211,7 +245,7 @@ function cosine($v1, $v2)
 
 
 // ==============================
-// 9. PROSES TF-IDF + COSINE
+// 11. HITUNG TF-IDF DAN COSINE SIMILARITY
 // ==============================
 $idf = compute_idf($documents);
 
@@ -225,36 +259,36 @@ foreach ($karir_data as $k) {
 
     $similarity = cosine($profil_vector, $karir_vector);
 
-    $kategori = $k['data']['kategori'];
-    $weight = $bobot[$kategori] ?? 0.1;
-
-    $final_score = $similarity * $weight;
-
     $hasil[] = [
-        'id_karir' => $k['data']['id_karir'],
-        'nama' => $k['data']['nama_karir'],
-        'deskripsi' => $k['data']['deskripsi'],
-        'score' => $final_score
-    ];
+
+    'id_karir'=>$k['data']['id_karir'],
+
+    'nama'=>$k['data']['nama_karir'],
+
+    'deskripsi'=>$k['data']['deskripsi'],
+
+    'score'=>$similarity
+
+];
 }
 
 
 // ==============================
-// 10. SORTING
+// 12. SORTING
 // ==============================
 usort($hasil, function ($a, $b) {
     return $b['score'] <=> $a['score'];
 });
 
 // ==============================
-// 11. TOP 3 (UNTUK DITAMPILKAN)
+// 13. TOP 3 (UNTUK DITAMPILKAN)
 // ==============================
 $top3 = array_slice($hasil, 0, 3);
 
 // ==============================
-// 12. SIMPAN TOP 3 KE DATABASE
+// 14. SIMPAN TOP 3 KE DATABASE
 // ==============================
-mysqli_query($conn, "DELETE FROM hasil WHERE id_siswa='$id_siswa'");
+$tanggal_test = date('Y-m-d H:i:s');
 
 foreach ($top3 as $h) {
 
@@ -262,7 +296,12 @@ foreach ($top3 as $h) {
 
     mysqli_query($conn, "
     INSERT INTO hasil (id_siswa, id_karir, skor, tanggal)
-    VALUES ('$id_siswa', '" . $h['id_karir'] . "', '$score', NOW())
+    VALUES (
+        '$id_siswa',
+        '".$h['id_karir']."',
+        '$score',
+        '$tanggal_test'
+    )
     ");
 }
 
@@ -272,7 +311,7 @@ foreach ($top3 as $h) {
 $_SESSION['rekomendasi'] = $top3;
 
 // ==============================
-// 14. REDIRECT
+// 14. TAMPILKAN HASIL REKOMENDASI
 // ==============================
 header("Location: Hasil.php");
 exit;

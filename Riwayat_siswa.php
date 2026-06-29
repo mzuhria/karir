@@ -166,7 +166,7 @@ $query_hasil = mysqli_query($conn, "
 
 <body>
 
-    <!-- 🔥 NAVBAR (PUNYA KAMU) -->
+    <!--  NAVBAR (PUNYA KAMU) -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow py-2">
         <div class="container">
 

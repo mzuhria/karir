@@ -195,9 +195,9 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
         </div>
 
         <a href="Dashboard_gurubp.php" class="bg-secondary text-white"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
-        <a href="Kelola_siswa.php"><i class="bi bi-people me-2"></i>Kelola Siswa</a>
         <a href="Kelola_soal.php"><i class="bi bi-ui-checks me-2"></i>Kelola Soal</a>
         <a href="Kelola_karir.php"><i class="bi bi-briefcase me-2"></i>Kelola Karir</a>
+        <a href="Kelola_siswa.php"><i class="bi bi-people me-2"></i>Kelola Akun Siswa</a>
         <a href="Riwayat.php"><i class="bi bi-clock-history me-2"></i>Riwayat</a>
         <hr>
         <a href="Logout_Admin.php" class="text-danger"><i class="bi bi-box-arrow-right me-1"></i> Logout</a>

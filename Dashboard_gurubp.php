@@ -46,7 +46,7 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Guru BP</title>
+    <title>Dashboard Guru BK</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
@@ -223,7 +223,7 @@ $total_hasil = mysqli_fetch_assoc(mysqli_query(
         <!-- SAMBUTAN -->
         <div class="card card-custom p-3 mb-4">
             <h5>Selamat datang, <b><?= htmlspecialchars($nama_guru); ?></b> 👋</h5>
-            <small>Dashboard Guru BP</small>
+            <small>Dashboard Guru BK</small>
         </div>
 
         <!-- STATISTIK -->

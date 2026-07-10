@@ -44,7 +44,7 @@ VALUES
 ('$nama','$kelas','$jurusan','$subkelas','$email','$username','$password_hash','$no_hp','$status','$id_admin', NOW())";
 
 if (mysqli_query($conn, $query)) {
-    header("Location: Login_siswa.php?success=1");
+    header("Location: Login_Siswa.php?success=1");
 } else {
     echo "Gagal menyimpan data!";
 }

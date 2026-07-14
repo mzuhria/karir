@@ -60,48 +60,6 @@ while ($row = mysqli_fetch_assoc($q)) {
     $riasec[$row['kategori']] = $row['total'];
 }
 
-/*echo "<h2>Hasil Perhitungan Skor RIASEC</h2>";
-
-echo "<table border='1' cellpadding='8'>
-<tr>
-<th>Kategori</th>
-<th>Total Skor</th>
-</tr>";
-
-foreach ($riasec as $kategori => $total) {
-
-    echo "<tr>
-            <td>$kategori</td>
-            <td>$total</td>
-          </tr>";
-}
-
-echo "</table>";
-
-echo "<br><h3>Top 3 Profil Minat Siswa</h3>";
-
-$top = array_keys($riasec);
-
-echo "
-<table border='1' cellpadding='8'>
-<tr>
-<th>Ranking</th>
-<th>Kategori</th>
-</tr>
-";
-
-for ($i=0; $i<3; $i++) {
-
-    echo "<tr>
-            <td>".($i+1)."</td>
-            <td>".$top[$i]."</td>
-          </tr>";
-}
-
-echo "</table>";
-
-exit;*/
-
 // ==============================
 // 4. TENTUKAN TOP 3 RIASEC
 // ==============================
@@ -186,7 +144,7 @@ function compute_idf($documents)
 
     $idf = [];
     foreach ($df as $word => $val) {
-        $idf[$word] = log($N / $val);
+        $idf[$word] = log10($N / $val);
     }
 
     return $idf;
@@ -204,12 +162,14 @@ function tfidf_vector($text, $idf)
     foreach ($words as $w) {
         if ($w == "") continue;
         if (!isset($tf[$w])) $tf[$w] = 0;
+        //menghitung TF/term
         $tf[$w]++;
     }
 
     $vector = [];
 
     foreach ($tf as $word => $freq) {
+        //menghitung TF-IDF
         $vector[$word] = $freq * ($idf[$word] ?? 0);
     }
 
@@ -227,12 +187,13 @@ function cosine($v1, $v2)
     $n1 = 0;
     $n2 = 0;
 
+    //Ambil semua kata yang ada pada profil siswa dan data karir
     $keys = array_unique(array_merge(array_keys($v1), array_keys($v2)));
 
     foreach ($keys as $k) {
         $a = $v1[$k] ?? 0;
         $b = $v2[$k] ?? 0;
-
+        //menghitung similarity
         $dot += $a * $b;
         $n1 += $a * $a;
         $n2 += $b * $b;
@@ -268,8 +229,7 @@ foreach ($karir_data as $k) {
     'deskripsi'=>$k['data']['deskripsi'],
 
     'score'=>$similarity
-
-];
+    ];
 }
 
 

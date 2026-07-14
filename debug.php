@@ -1,0 +1,363 @@
+<?php
+session_start();
+include "koneksi.php";
+
+if (!isset($_SESSION['id_siswa'])) {
+    header("Location: Kuisioner.php");
+    exit;
+}
+
+$id_siswa = $_SESSION['id_siswa'];
+
+
+// ==============================
+// 1. AMBIL DATA SISWA
+// ==============================
+$data = mysqli_query($conn, "SELECT jurusan FROM siswa WHERE id_siswa='$id_siswa'");
+$siswa = mysqli_fetch_assoc($data);
+$jurusan = $siswa['jurusan'] ?? '';
+
+
+// ==============================
+// 2. PREPROCESSING TEXT
+// ==============================
+$stopwords = ['saya', 'dan', 'yang', 'dengan', 'di', 'ke', 'dari', 'untuk', 'pada', 'dalam'];
+
+function clean_text($text, $stopwords)
+{
+    $text = strtolower($text);
+    $text = preg_replace('/[^a-z0-9\s]/', '', $text);
+    $words = explode(" ", $text);
+
+    $filtered = [];
+    foreach ($words as $w) {
+        if ($w != "" && !in_array($w, $stopwords)) {
+            $filtered[] = $w;
+        }
+    }
+
+    return implode(" ", $filtered);
+}
+
+
+// ==============================
+// 3. HITUNG SKOR RIASEC
+// ==============================
+$riasec = [];
+
+$q = mysqli_query($conn, "
+SELECT k.kategori, SUM(j.nilai) as total
+FROM jawaban j
+JOIN kuisioner k ON j.id_soal = k.id_soal
+WHERE j.id_siswa='$id_siswa'
+GROUP BY k.kategori
+ORDER BY total DESC
+");
+
+$riasec = [];
+
+while ($row = mysqli_fetch_assoc($q)) {
+    $riasec[$row['kategori']] = $row['total'];
+}
+
+// ==============================
+// 4. TENTUKAN TOP 3 RIASEC
+// ==============================
+
+// urutkan dari terbesar
+arsort($riasec);
+
+// ambil top 3
+$keys = array_keys($riasec);
+
+$tipe1 = $keys[0] ?? '';
+$tipe2 = $keys[1] ?? '';
+$tipe3 = $keys[2] ?? '';
+
+
+// ==============================
+// 5. BENTUK PROFIL MINAT SISWA
+// ==============================
+$profil_text = "";
+
+$query = mysqli_query($conn, "
+SELECT k.pertanyaan, j.nilai
+FROM jawaban j
+JOIN kuisioner k ON j.id_soal = k.id_soal
+WHERE j.id_siswa='$id_siswa'
+AND k.kategori IN ('$tipe1','$tipe2','$tipe3')
+");
+
+while ($row = mysqli_fetch_assoc($query)) {
+
+    $text = clean_text($row['pertanyaan'], $stopwords);
+
+    $profil_text .= " " . $text;
+}
+
+// ==============================
+// 7. AMBIL DATA KARIR
+// ==============================
+$documents = [];
+$karir_data = [];
+
+$documents[] = $profil_text;
+
+$q = mysqli_query($conn, "
+SELECT *
+FROM karir
+WHERE jurusan='$jurusan'
+");
+
+
+
+while ($row = mysqli_fetch_assoc($q)) {
+
+    $text = clean_text($row['deskripsi'], $stopwords);
+
+    $documents[] = $text;
+
+    $karir_data[] = [
+        'data' => $row,
+        'text' => $text
+    ];
+}
+
+
+// ==============================
+// 8. FUNGSI PERHITUNGAN IDF
+// ==============================
+function compute_idf($documents)
+{
+    $df = [];
+    $N = count($documents);
+
+    foreach ($documents as $doc) {
+        $words = array_unique(explode(" ", $doc));
+
+        foreach ($words as $w) {
+            if ($w == "") continue;
+            if (!isset($df[$w])) $df[$w] = 0;
+            $df[$w]++;
+        }
+    }
+
+    $idf = [];
+    foreach ($df as $word => $val) {
+        $idf[$word] = log10($N / $val);
+    }
+
+    return $idf;
+}
+
+
+// ==============================
+// 9. FUNGSI PERHITUNGAN TF-IDF
+// ==============================
+function tfidf_vector($text, $idf)
+{
+    $words = explode(" ", $text);
+    $tf = [];
+
+    foreach ($words as $w) {
+        if ($w == "") continue;
+        if (!isset($tf[$w])) $tf[$w] = 0;
+        //menghitung TF/term
+        $tf[$w]++;
+    }
+
+    $vector = [];
+
+    foreach ($tf as $word => $freq) {
+        //menghitung TF-IDF
+        $vector[$word] = $freq * ($idf[$word] ?? 0);
+    }
+
+    return $vector;
+}
+
+
+// ==============================
+// 10. FUNGSI COSINE SIMILARITY
+// ==============================
+function cosine($v1, $v2)
+{
+
+    $dot = 0;
+    $n1 = 0;
+    $n2 = 0;
+
+    //Ambil semua kata yang ada pada profil siswa dan data karir
+    $keys = array_unique(array_merge(array_keys($v1), array_keys($v2)));
+
+    foreach ($keys as $k) {
+        $a = $v1[$k] ?? 0;
+        $b = $v2[$k] ?? 0;
+        //menghitung similarity
+        $dot += $a * $b;
+        $n1 += $a * $a;
+        $n2 += $b * $b;
+    }
+
+    if ($n1 == 0 || $n2 == 0) return 0;
+
+    return $dot / (sqrt($n1) * sqrt($n2));
+}
+
+
+// ==============================
+// 11. HITUNG TF-IDF DAN COSINE SIMILARITY
+// ==============================
+$idf = compute_idf($documents);
+
+echo "<h2>DEBUG IDF</h2>";
+echo "<table border='1' cellpadding='5'>";
+echo "<tr>
+<th>Term</th>
+<th>IDF</th>
+</tr>";
+
+foreach ($idf as $term => $nilai) {
+
+    echo "<tr>";
+    echo "<td>$term</td>";
+    echo "<td>" . round($nilai, 6) . "</td>";
+    echo "</tr>";
+}
+
+echo "</table><br>";
+
+$profil_vector = tfidf_vector($profil_text, $idf);
+
+echo "<h2>TF-IDF PROFIL SISWA</h2>";
+
+echo "<table border='1' cellpadding='5'>";
+echo "<tr>
+<th>Term</th>
+<th>TF-IDF</th>
+</tr>";
+
+foreach ($profil_vector as $term => $nilai) {
+
+    echo "<tr>";
+    echo "<td>$term</td>";
+    echo "<td>" . round($nilai, 6) . "</td>";
+    echo "</tr>";
+}
+
+echo "</table><br>";
+
+$hasil = [];
+
+foreach ($karir_data as $k) {
+
+    $karir_vector = tfidf_vector($k['text'], $idf);
+
+    echo "<h2>" . $k['data']['nama_karir'] . "</h2>";
+
+    echo "<table border='1' cellpadding='5'>";
+    echo "<tr>
+<th>Term</th>
+<th>TF-IDF Profil</th>
+<th>TF-IDF Karir</th>
+<th>A×B</th>
+<th>A²</th>
+<th>B²</th>
+</tr>";
+
+    $dot = 0;
+    $n1 = 0;
+    $n2 = 0;
+
+    $keys = array_unique(array_merge(array_keys($profil_vector), array_keys($karir_vector)));
+
+    foreach ($keys as $term) {
+
+        $a = $profil_vector[$term] ?? 0;
+        $b = $karir_vector[$term] ?? 0;
+
+        $ab = $a * $b;
+        $aa = $a * $a;
+        $bb = $b * $b;
+
+        $dot += $ab;
+        $n1 += $aa;
+        $n2 += $bb;
+
+        echo "<tr>";
+        echo "<td>$term</td>";
+        echo "<td>" . round($a, 6) . "</td>";
+        echo "<td>" . round($b, 6) . "</td>";
+        echo "<td>" . round($ab, 6) . "</td>";
+        echo "<td>" . round($aa, 6) . "</td>";
+        echo "<td>" . round($bb, 6) . "</td>";
+        echo "</tr>";
+    }
+
+    echo "</table>";
+
+    echo "<b>Dot Product :</b> " . round($dot, 6) . "<br>";
+    echo "<b>|A| :</b> " . round(sqrt($n1), 6) . "<br>";
+    echo "<b>|B| :</b> " . round(sqrt($n2), 6) . "<br>";
+
+    $cos = $dot / (sqrt($n1) * sqrt($n2));
+
+    echo "<b>Cosine Similarity :</b> " . round($cos, 6) . "<hr>";
+
+    $similarity = cosine($profil_vector, $karir_vector);
+
+    $hasil[] = [
+
+        'id_karir' => $k['data']['id_karir'],
+
+        'nama' => $k['data']['nama_karir'],
+
+        'deskripsi' => $k['data']['deskripsi'],
+
+        'score' => $similarity
+    ];
+}
+
+
+// ==============================
+// 12. SORTING
+// ==============================
+usort($hasil, function ($a, $b) {
+    return $b['score'] <=> $a['score'];
+});
+
+// ==============================
+// 13. TOP 3 (UNTUK DITAMPILKAN)
+// ==============================
+$top3 = array_slice($hasil, 0, 3);
+
+// ==============================
+// 14. SIMPAN TOP 3 KE DATABASE
+// ==============================
+$tanggal_test = date('Y-m-d H:i:s');
+
+foreach ($top3 as $h) {
+
+    $score = round($h['score'], 4);
+
+    mysqli_query($conn, "
+    INSERT INTO hasil (id_siswa, id_karir, skor, tanggal)
+    VALUES (
+        '$id_siswa',
+        '" . $h['id_karir'] . "',
+        '$score',
+        '$tanggal_test'
+    )
+    ");
+}
+
+// ==============================
+// 13. SIMPAN KE SESSION (TOP 3)
+// ==============================
+$_SESSION['rekomendasi'] = $top3;
+
+// ==============================
+// 14. TAMPILKAN HASIL REKOMENDASI
+// ==============================
+//header("Location: Hasil.php");
+exit;

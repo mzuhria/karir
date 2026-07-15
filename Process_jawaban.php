@@ -19,6 +19,6 @@ VALUES
 
 }
 
-header("Location: Process_rekomendasi.php");
+header("Location: debug.php");
 exit;
 ?>
